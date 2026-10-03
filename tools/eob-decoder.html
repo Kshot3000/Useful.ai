@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Medical EOB decoder — Useful.ai</title>
+  <meta name="description" content="Paste billed, allowed, and patient responsibility from an explanation of benefits. Get a plain-English reading and an arithmetic check. No code prices.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect fill='%231a1916' width='32' height='32' rx='6'/%3E%3Cpath d='M8 22 V10 h4.2 c3.2 0 5 1.5 5 3.8 0 1.6-.9 2.8-2.3 3.3 1.7.4 2.8 1.7 2.8 3.5 0 2.5-2 3.9-5.4 3.9H8zm3-6.8h1.4c1.3 0 2-.6 2-1.6s-.7-1.5-2-1.5H11v3.1zm0 2.4v3.2h1.7c1.4 0 2.2-.6 2.2-1.6s-.8-1.6-2.2-1.6H11z' fill='%23f4f1ea'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,500&family=Outfit:wght@400;520;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/site.css">
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <a class="brand" href="../index.html">Useful<i>.ai</i></a>
+      <nav><a href="../index.html">All tools</a></nav>
+    </header>
+    <p class="crumb"><a href="../index.html">Tools</a> / EOB decoder</p>
+    <section class="hero">
+      <p class="kicker">Explanation of benefits</p>
+      <h1>Medical EOB decoder</h1>
+      <p class="lede">Paste the labels the notice already uses: billed, allowed, plan paid, patient responsibility. The page reads those words in plain English and checks whether the columns add. It does not look up a code or invent a price.</p>
+    </section>
+    <div class="layout">
+      <form class="panel" id="form">
+        <ol class="steps">
+          <li><span>01</span><div>Use the explanation of benefits, not the provider’s first statement. The column names vary. Copy the words on your notice.</div></li>
+          <li><span>02</span><div>Paste labeled amounts, or type service lines as description | billed | allowed | plan paid | you owe. Leave a column blank if the notice does not show it.</div></li>
+          <li><span>03</span><div>Appeal windows and remark-code meanings are printed on the notice. This page does not invent them. Copy the packet before you call.</div></li>
+        </ol>
+        <div class="row">
+          <div class="field"><label for="plan">Plan name on the notice</label><input id="plan" placeholder="As printed"></div>
+          <div class="field"><label for="claim">Claim number</label><input id="claim" placeholder="From the EOB"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label for="provider">Provider</label><input id="provider" placeholder="As printed"></div>
+          <div class="field"><label for="service">Date of service</label><input id="service" placeholder="As printed"></div>
+        </div>
+        <div class="field">
+          <label for="network">Network status, only if the notice says it</label>
+          <select id="network">
+            <option value="unsaid">Not stated on what I pasted</option>
+            <option value="in">Notice says in-network</option>
+            <option value="out">Notice says out-of-network</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="paste">Labeled amounts — one per line, as on the notice</label>
+          <textarea id="paste" placeholder="Billed amount: 1200&#10;Allowed amount: 480&#10;Plan paid: 360&#10;Patient responsibility: 120&#10;Deductible: 80&#10;Coinsurance: 40"></textarea>
+        </div>
+        <div class="field">
+          <label for="lines">Service lines — description | billed | allowed | plan paid | you owe | remark you copied</label>
+          <textarea id="lines" placeholder="Office visit | 350 | 140 | 100 | 40 |"></textarea>
+        </div>
+        <div class="actions">
+          <button type="button" id="sample">Load an example</button>
+          <button type="button" class="secondary" id="clear">Clear</button>
+        </div>
+        <p class="note">Not legal, tax, or medical advice. Dated 3 October 2026. Every dollar on this page is one you typed. A billed amount above allowed is common and is not, by itself, an error. No CPT or HCPCS lookup.</p>
+      </form>
+      <aside class="result" aria-live="polite">
+        <p class="kicker">Reading</p>
+        <div class="statgrid" id="stats"></div>
+        <div id="flag"></div>
+        <pre class="letter" id="letter"></pre>
+        <div class="actions">
+          <button type="button" id="copy">Copy packet</button>
+          <button type="button" class="secondary" onclick="window.print()">Print</button>
+        </div>
+      </aside>
+    </div>
+    <footer class="site"><span>Labels only. No procedure-price lookup.</span><span><a href="../index.html">All tools</a></span></footer>
+  </div>
+  <script src="../assets/site.js"></script>
+  <script>
+    const form = document.getElementById("form");
+    persist("useful-eob", form);
+    const example = {
+      plan: "Example Plan — not a real notice",
+      claim: "CLM-22018",
+      provider: "North Clinic",
+      service: "2026-02-11",
+      network: "in",
+      paste: "Billed amount: 1200\nAllowed amount: 480\nPlan paid: 360\nPatient responsibility: 120\nDeductible: 80\nCoinsurance: 40\nCopay: 0\nNot covered: 0",
+      lines: "Office visit | 700 | 280 | 200 | 80 | remark copied: deductible\nLab draw | 500 | 200 | 160 | 40 | remark copied: coinsurance"
+    };
+    const LABELS = [
+      ["billed", /^(billed( amount)?|total billed|charges|provider charges|amount billed)$/],
+      ["allowed", /^(allowed( amount)?|plan allowed|negotiated( amount)?|approved amount)$/],
+      ["paid", /^(plan paid|insurance paid|amount paid|paid by plan|plan payment)$/],
+      ["patient", /^(patient responsibility|you owe|your share|member responsibility|amount you owe|your responsibility)$/],
+      ["deductible", /^(deductible|deductible applied)$/],
+      ["coinsurance", /^co-?insurance$/],
+      ["copay", /^(copay|co-pay)$/],
+      ["notCovered", /^(not covered|non-covered|excluded|amount not covered)$/],
+      ["adjustment", /^(adjustment|contractual adjustment|provider discount|plan discount)$/]
+    ];
+    function num(s) {
+      if (s == null) return null;
+      const t = String(s).replace(/[$,]/g, "").trim();
+      if (!t || t === "-" || t === "—") return null;
+      const n = Number(t);
+      return Number.isFinite(n) ? n : null;
+    }
+    function show(n) { return n == null ? "not on what you pasted" : money(n); }
+    function parsePaste(text) {
+      const out = {};
+      text.split("\n").forEach(line => {
+        const m = line.split(/[:=]/);
+        if (m.length < 2) return;
+        const key = m[0].trim().toLowerCase().replace(/\s+/g, " ");
+        const val = num(m.slice(1).join(":"));
+        if (val == null) return;
+        for (const [name, re] of LABELS) {
+          if (re.test(key)) out[name] = val;
+        }
+      });
+      return out;
+    }
+    function parseLines(text) {
+      return text.split("\n").map(s => s.trim()).filter(Boolean).map(line => {
+        const p = line.split("|").map(x => x.trim());
+        return {
+          desc: p[0] || "Line",
+          billed: num(p[1]),
+          allowed: num(p[2]),
+          paid: num(p[3]),
+          patient: num(p[4]),
+          remark: p[5] || ""
+        };
+      });
+    }
+    function sum(rows, key) {
+      const vals = rows.map(r => r[key]).filter(v => v != null);
+      if (!vals.length) return null;
+      return vals.reduce((a, b) => a + b, 0);
+    }
+    function read() {
+      const labels = parsePaste(document.getElementById("paste").value);
+      const rows = parseLines(document.getElementById("lines").value);
+      const billed = labels.billed != null ? labels.billed : sum(rows, "billed");
+      const allowed = labels.allowed != null ? labels.allowed : sum(rows, "allowed");
+      const paid = labels.paid != null ? labels.paid : sum(rows, "paid");
+      const patient = labels.patient != null ? labels.patient : sum(rows, "patient");
+      const parts = ["deductible", "coinsurance", "copay", "notCovered"].filter(k => labels[k] != null);
+      const partSum = parts.length ? parts.reduce((a, k) => a + labels[k], 0) : null;
+      const gap = billed != null && allowed != null ? billed - allowed : null;
+      const allowedMinusPaid = allowed != null && paid != null ? allowed - paid : null;
+      const paidPlusYou = paid != null && patient != null ? paid + patient : null;
+      return { labels, rows, billed, allowed, paid, patient, parts, partSum, gap, allowedMinusPaid, paidPlusYou };
+    }
+    function questions(d) {
+      const q = [];
+      if (d.patient != null && d.allowedMinusPaid != null && Math.abs(d.patient - d.allowedMinusPaid) > 0.009) {
+        q.push("Patient responsibility (" + money(d.patient) + ") is not the same as allowed minus plan paid (" + money(d.allowedMinusPaid) + "). Ask which column makes up the difference. A not-covered amount can sit outside allowed.");
+      }
+      if (d.paidPlusYou != null && d.allowed != null && Math.abs(d.paidPlusYou - d.allowed) > 0.009) {
+        q.push("Plan paid plus patient responsibility is " + money(d.paidPlusYou) + ", and allowed is " + money(d.allowed) + ". Ask the plan to name the column that closes that gap.");
+      }
+      if (d.partSum != null && d.patient != null && Math.abs(d.partSum - d.patient) > 0.009) {
+        q.push("Deductible, coinsurance, copay, and not-covered, as you pasted them, add to " + money(d.partSum) + ". The notice’s patient responsibility is " + money(d.patient) + ".");
+      }
+      if (d.labels.adjustment != null && d.gap != null && Math.abs(d.labels.adjustment - d.gap) > 0.009) {
+        q.push("The adjustment you pasted (" + money(d.labels.adjustment) + ") is not the same as billed minus allowed (" + money(d.gap) + ").");
+      }
+      d.rows.forEach(r => {
+        if (r.paid != null && r.patient != null && r.allowed != null && Math.abs((r.paid + r.patient) - r.allowed) > 0.009) {
+          q.push(r.desc + ": plan paid plus you owe does not equal allowed on that line.");
+        }
+      });
+      if (!q.length) q.push("The columns you pasted agree with each other. The remaining question is whether the service itself belongs on the claim. This page cannot answer that.");
+      return q;
+    }
+    function packet(d) {
+      const plan = document.getElementById("plan").value.trim() || "[plan]";
+      const claim = document.getElementById("claim").value.trim() || "[claim number]";
+      const provider = document.getElementById("provider").value.trim() || "[provider]";
+      const service = document.getElementById("service").value.trim() || "[date of service]";
+      const network = document.getElementById("network").value;
+      const networkLine = network === "in" ? "Notice says in-network. A billed-minus-allowed gap is often the plan’s contracted write-down. Confirm that on the notice; this page does not decide it."
+        : network === "out" ? "Notice says out-of-network. Billed minus allowed may not be a write-off you can ignore. The notice, not this page, says whether you can be billed the difference."
+        : "Network status was not on what you pasted. Do not assume the billed-minus-allowed gap is written off.";
+      const today = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+      const lineBlock = d.rows.length ? d.rows.map(r =>
+        "- " + r.desc + ": billed " + show(r.billed) + ", allowed " + show(r.allowed) + ", plan paid " + show(r.paid) + ", you owe " + show(r.patient) + (r.remark ? " (" + r.remark + ")" : "")
+      ).join("\n") : "No service lines pasted.";
+      return [
+        "EOB reading — " + today,
+        plan + " · claim " + claim,
+        provider + " · service " + service,
+        "",
+        "What the labels mean, using only your figures:",
+        "Billed " + show(d.billed) + " — the charge the provider listed. Not the price the plan uses.",
+        "Allowed " + show(d.allowed) + " — the amount the notice says the plan used. This page did not look up a fee schedule.",
+        "Plan paid " + show(d.paid) + " — what the notice says the plan paid the provider.",
+        "Patient responsibility " + show(d.patient) + " — what the notice says you may owe. It is not a new price.",
+        "Billed minus allowed " + (d.gap == null ? "not on what you pasted" : money(d.gap)) + ".",
+        "Allowed minus plan paid " + (d.allowedMinusPaid == null ? "not on what you pasted" : money(d.allowedMinusPaid)) + ".",
+        "",
+        networkLine,
+        "",
+        "Buckets you pasted: deductible " + show(d.labels.deductible) + ", coinsurance " + show(d.labels.coinsurance) + ", copay " + show(d.labels.copay) + ", not covered " + show(d.labels.notCovered) + ", adjustment " + show(d.labels.adjustment) + ".",
+        d.partSum == null ? "No deductible / coinsurance / copay / not-covered sum to check." : "Those buckets add to " + money(d.partSum) + ".",
+        "",
+        "Lines:",
+        lineBlock,
+        "",
+        "Questions for the plan, not findings:",
+        questions(d).map(x => "- " + x).join("\n"),
+        "",
+        "Appeal deadline: leave blank until you copy it from the notice.",
+        "Remark codes: copy the text next to them. This page does not translate codes.",
+        "",
+        "Not legal, tax, or medical advice."
+      ].join("\n");
+    }
+    function render() {
+      const d = read();
+      document.getElementById("stats").innerHTML =
+        '<div class="stat"><span>Billed</span><b>' + show(d.billed) + '</b></div>' +
+        '<div class="stat"><span>Allowed</span><b>' + show(d.allowed) + '</b></div>' +
+        '<div class="stat"><span>Plan paid</span><b>' + show(d.paid) + '</b></div>' +
+        '<div class="stat emph"><span>Patient responsibility</span><b>' + show(d.patient) + '</b></div>' +
+        '<div class="stat"><span>Billed minus allowed</span><b>' + (d.gap == null ? "—" : money(d.gap)) + '</b></div>' +
+        '<div class="stat"><span>Lines pasted</span><b>' + d.rows.length + '</b></div>';
+      const flag = document.getElementById("flag");
+      const mismatch = questions(d).some(q => !q.startsWith("The columns you pasted agree"));
+      if (d.billed == null && d.allowed == null && d.patient == null) {
+        flag.innerHTML = '<div class="callout">Paste billed, allowed, and patient responsibility. Blank columns stay blank.</div>';
+      } else if (mismatch) {
+        flag.innerHTML = '<div class="callout warn">A column does not match another column you typed. The packet lists the question. It is not a finding of an error.</div>';
+      } else {
+        flag.innerHTML = '<div class="callout ok">The amounts you pasted agree with each other. That is an arithmetic check, not a coverage decision.</div>';
+      }
+      document.getElementById("letter").textContent = packet(d);
+    }
+    form.addEventListener("input", render);
+    document.getElementById("sample").addEventListener("click", () => {
+      Object.entries(example).forEach(([k, v]) => { document.getElementById(k).value = v; });
+      form.dispatchEvent(new Event("input"));
+      render();
+    });
+    document.getElementById("clear").addEventListener("click", () => {
+      form.reset();
+      localStorage.removeItem("useful-eob");
+      render();
+    });
+    document.getElementById("copy").addEventListener("click", () => copyText(document.getElementById("letter").textContent, document.getElementById("copy")));
+    render();
+  </script>
+</body>
+</html>

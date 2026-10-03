@@ -65,6 +65,13 @@
       "status": "live",
       "path": "tools/move-checklist.html",
       "search": ["moving checklist dmv voter insurance usps", "change of address checklist", "what to update when you move"]
+    },
+    {
+      "slug": "eob-decoder",
+      "title": "Medical EOB decoder",
+      "status": "live",
+      "path": "tools/eob-decoder.html",
+      "search": ["EOB decoder", "explanation of benefits plain English", "allowed amount vs billed", "patient responsibility explained"]
     }
   ]
 }
