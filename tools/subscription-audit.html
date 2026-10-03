@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Subscription audit — Useful.ai</title>
+  <meta name="description" content="Paste recurring charges, see the annualized cost of each, and copy a cancellation script. No invented trial lengths, fees, or cancellation deadlines.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect fill='%231a1916' width='32' height='32' rx='6'/%3E%3Cpath d='M8 22 V10 h4.2 c3.2 0 5 1.5 5 3.8 0 1.6-.9 2.8-2.3 3.3 1.7.4 2.8 1.7 2.8 3.5 0 2.5-2 3.9-5.4 3.9H8zm3-6.8h1.4c1.3 0 2-.6 2-1.6s-.7-1.5-2-1.5H11v3.1zm0 2.4v3.2h1.7c1.4 0 2.2-.6 2.2-1.6s-.8-1.6-2.2-1.6H11z' fill='%23f4f1ea'/%3E%3C/svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,500&family=Outfit:wght@400;520;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/site.css">
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <a class="brand" href="../index.html">Useful<i>.ai</i></a>
+      <nav><a href="../index.html">All tools</a></nav>
+    </header>
+    <p class="crumb"><a href="../index.html">Tools</a> / Subscription audit</p>
+    <section class="hero">
+      <p class="kicker">Before the next renewal</p>
+      <h1>Subscription audit</h1>
+      <p class="lede">Paste the charges from a statement. Each line is turned into a yearly figure with the multiplier shown. The cancellation note is a script you send, not a rule about how long a merchant has to stop billing.</p>
+    </section>
+    <div class="layout">
+      <form class="panel" id="form">
+        <ol class="steps">
+          <li><span>01</span><div>Type or paste what the statement actually charged. A yearly plan looks small per month until it is written as a year.</div></li>
+          <li><span>02</span><div>Set your own flag line if you want. This page does not publish a “too expensive” cutoff.</div></li>
+          <li><span>03</span><div>Copy the script for the ones you are ending. Confirmation number and cancel path stay blank until you fill them.</div></li>
+        </ol>
+        <div class="row">
+          <div class="field"><label for="name">Your name on the note</label><input id="name" placeholder="Name"></div>
+          <div class="field"><label for="email">Email on the accounts</label><input id="email" type="email" placeholder="you@example.com"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label for="card">Card or account ending, if you want it on the note</label><input id="card" placeholder="Last 4 only, optional"></div>
+          <div class="field"><label for="flag">Flag a line if the year is over</label><input id="flag" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Blank means no dollar cutoff"></div>
+        </div>
+        <div class="field">
+          <label for="paste">Paste charges, one per line</label>
+          <textarea id="paste" placeholder="StreamCo 15.49 monthly&#10;Cloud box 119 yearly&#10;News app 9.99 quarterly"></textarea>
+        </div>
+        <p class="note">Each line: name, amount, then weekly, monthly, quarterly, or yearly. If the cadence word is missing, the line is treated as monthly and marked as assumed.</p>
+        <label>Charge lines</label>
+        <div id="charges"></div>
+        <div class="actions">
+          <button class="ghost" id="add-charge" type="button">Add charge</button>
+          <button class="secondary" id="parse" type="button">Read the paste box</button>
+          <button class="secondary" id="example" type="button">Load example</button>
+        </div>
+        <label>Before you send the note</label>
+        <div id="checks"></div>
+        <p class="note">Yearly figures use ×52, ×12, ×4, or ×1. That is arithmetic on this page, not the merchant’s billing calendar. A weekly charge ×52 can differ from 365 days of billing.</p>
+      </form>
+      <aside class="result" aria-live="polite">
+        <p class="kicker">Annualized</p>
+        <div class="statgrid" id="stats"></div>
+        <div id="flagbox"></div>
+        <pre class="letter" id="letter"></pre>
+        <div class="actions">
+          <button type="button" id="copy">Copy packet</button>
+          <button type="button" class="secondary" onclick="window.print()">Print</button>
+        </div>
+      </aside>
+    </div>
+    <footer class="site"><span>Not legal, tax, or medical advice. Cancellation windows, refund rules, and trial lengths are on the merchant’s terms or your statement, not on this page. Dated 3 October 2026.</span><span><a href="../index.html">All tools</a></span></footer>
+  </div>
+  <script src="../assets/site.js"></script>
+  <script>
+    const form = document.getElementById("form");
+    persist("useful-subscription-audit", form);
+    const CADENCE = {
+      weekly: { mult: 52, label: "weekly \u00d7 52" },
+      monthly: { mult: 12, label: "monthly \u00d7 12" },
+      quarterly: { mult: 4, label: "quarterly \u00d7 4" },
+      yearly: { mult: 1, label: "yearly \u00d7 1" }
+    };
+    const ITEMS = [
+      "The charge on the statement matches this name and amount",
+      "I found the cancel path in the account, not from a search ad",
+      "I asked for written confirmation and a stop to future charges",
+      "I saved the confirmation number or screenshot"
+    ];
+    const checks = document.getElementById("checks");
+    const savedChecks = JSON.parse(localStorage.getItem("useful-subscription-audit-checks") || "[]");
+    ITEMS.forEach((label, i) => {
+      const row = document.createElement("label");
+      row.className = "check";
+      row.innerHTML = '<input type="checkbox" data-i="' + i + '"> <span>' + label + '</span>';
+      const box = row.querySelector("input");
+      box.checked = !!savedChecks[i];
+      box.addEventListener("change", () => { saveChecks(); render(); });
+      checks.appendChild(row);
+    });
+    function saveChecks() {
+      localStorage.setItem("useful-subscription-audit-checks", JSON.stringify([...checks.querySelectorAll("input")].map(el => el.checked)));
+    }
+    const chargesEl = document.getElementById("charges");
+    let charges = JSON.parse(localStorage.getItem("useful-subscription-audit-charges") || "[]");
+    function saveCharges() {
+      localStorage.setItem("useful-subscription-audit-charges", JSON.stringify(charges));
+    }
+    function escapeAttr(s) {
+      var amp = String.fromCharCode(38);
+      return String(s || "").replace(/&/g, amp + "amp;").replace(/"/g, amp + "quot;").replace(/</g, amp + "lt;");
+    }
+    function drawCharges() {
+      chargesEl.innerHTML = "";
+      charges.forEach((c) => {
+        const row = document.createElement("div");
+        row.className = "photo-row";
+        const opts = Object.keys(CADENCE).map((k) => '<option value="' + k + '"' + (c.cadence === k ? " selected" : "") + '>' + k + '</option>').join("");
+        row.innerHTML =
+          '<input data-k="name" value="' + escapeAttr(c.name) + '" placeholder="Service">' +
+          '<input data-k="amount" value="' + escapeAttr(c.amount) + '" inputmode="decimal" placeholder="Amount">' +
+          '<select data-k="cadence">' + opts + '</select>';
+        chargesEl.appendChild(row);
+        const kill = document.createElement("button");
+        kill.type = "button";
+        kill.className = "secondary";
+        kill.textContent = "Remove";
+        kill.dataset.remove = "1";
+        row.appendChild(kill);
+      });
+    }
+    drawCharges();
+    chargesEl.addEventListener("input", (e) => {
+      const row = e.target.closest(".photo-row");
+      if (!row) return;
+      const i = [...chargesEl.children].indexOf(row);
+      charges[i][e.target.dataset.k] = e.target.value;
+      saveCharges();
+      render();
+    });
+    chargesEl.addEventListener("change", (e) => {
+      const row = e.target.closest(".photo-row");
+      if (!row) return;
+      const i = [...chargesEl.children].indexOf(row);
+      charges[i][e.target.dataset.k] = e.target.value;
+      saveCharges();
+      render();
+    });
+    chargesEl.addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-remove]");
+      if (!btn) return;
+      const row = btn.closest(".photo-row");
+      charges.splice([...chargesEl.children].indexOf(row), 1);
+      saveCharges();
+      drawCharges();
+      render();
+    });
+    document.getElementById("add-charge").addEventListener("click", () => {
+      charges.push({ name: "", amount: "", cadence: "monthly", assumed: false });
+      saveCharges();
+      drawCharges();
+      render();
+    });
+    function parseLine(line) {
+      const raw = line.trim();
+      if (!raw) return null;
+      const cadenceMatch = raw.match(/\b(weekly|monthly|quarterly|yearly|annual|year|month|week|quarter)\b/i);
+      let cadence = "monthly";
+      let assumed = true;
+      if (cadenceMatch) {
+        assumed = false;
+        const w = cadenceMatch[1].toLowerCase();
+        if (w === "week" || w === "weekly") cadence = "weekly";
+        else if (w === "quarter" || w === "quarterly") cadence = "quarterly";
+        else if (w === "year" || w === "yearly" || w === "annual") cadence = "yearly";
+        else cadence = "monthly";
+      }
+      const amountMatch = raw.match(/\$?\s*(\d{1,6}(?:,\d{3})*(?:\.\d{1,2})?)/);
+      if (!amountMatch) return null;
+      const amount = amountMatch[1].replace(/,/g, "");
+      let name = raw.replace(amountMatch[0], " ").replace(/\b(weekly|monthly|quarterly|yearly|annual|year|month|week|quarter)\b/ig, " ").replace(/\s+/g, " ").trim();
+      if (!name) name = "Untitled charge";
+      return { name, amount, cadence, assumed };
+    }
+    document.getElementById("parse").addEventListener("click", () => {
+      const lines = document.getElementById("paste").value.split(/\n/);
+      const parsed = lines.map(parseLine).filter(Boolean);
+      if (!parsed.length) return;
+      charges = parsed;
+      saveCharges();
+      drawCharges();
+      render();
+    });
+    function num(id) {
+      const v = document.getElementById(id).value;
+      if (v === "") return null;
+      const n = Number(v);
+      return Number.isFinite(n) ? n : null;
+    }
+    function fmt(d) { return d.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }); }
+    function annualOf(c) {
+      const amount = Number(String(c.amount).replace(/,/g, ""));
+      if (!Number.isFinite(amount)) return null;
+      const spec = CADENCE[c.cadence] || CADENCE.monthly;
+      return { amount, year: amount * spec.mult, label: spec.label, assumed: !!c.assumed };
+    }
+    function render() {
+      const rows = charges.map((c) => ({ c, a: annualOf(c) })).filter((r) => r.a);
+      const yearTotal = rows.reduce((s, r) => s + r.a.year, 0);
+      const monthEq = yearTotal / 12;
+      const cutoff = num("flag");
+      const flagged = rows.filter((r) => cutoff != null && r.a.year > cutoff);
+      const biggest = rows.slice().sort((x, y) => y.a.year - x.a.year)[0];
+      document.getElementById("stats").innerHTML =
+        '<div class="stat"><span>Lines with an amount</span><b>' + rows.length + '</b></div>' +
+        '<div class="stat"><span>Year, added up</span><b>' + money(yearTotal) + '</b></div>' +
+        '<div class="stat emph"><span>Same total \u00f7 12</span><b>' + money(monthEq) + '</b></div>' +
+        '<div class="stat"><span>Flag line you set</span><b>' + (cutoff == null ? "Not set" : money(cutoff)) + '</b></div>' +
+        '<div class="stat"><span>Largest year</span><b>' + (biggest ? money(biggest.a.year) : "\u2014") + '</b></div>';
+      const flagbox = document.getElementById("flagbox");
+      if (!rows.length) flagbox.innerHTML = '<div class="callout">Add a charge or read the paste box. Annualized cost stays at zero until an amount is on a line.</div>';
+      else if (cutoff != null && flagged.length) flagbox.innerHTML = '<div class="callout warn">' + flagged.length + ' line' + (flagged.length === 1 ? '' : 's') + ' annualize over the ' + money(cutoff) + ' you entered. The cutoff is yours, not a published rule.</div>';
+      else if (biggest) flagbox.innerHTML = '<div class="callout ok">Largest year on this list: ' + biggest.c.name + ' at ' + money(biggest.a.year) + ' (' + biggest.a.label + (biggest.a.assumed ? ', cadence assumed monthly' : '') + ').</div>';
+      else flagbox.innerHTML = '';
+      const detail = rows.length
+        ? rows.map((r) => {
+            const mark = (cutoff != null && r.a.year > cutoff) ? "FLAG " : "";
+            const assume = r.a.assumed ? " \u2014 cadence assumed monthly" : "";
+            return mark + r.c.name + ": " + money(r.a.amount) + " " + r.a.label + " = " + money(r.a.year) + assume;
+          }).join("\n")
+        : "[No charges yet]";
+      const list = ITEMS.map((label, i) => (checks.querySelectorAll("input")[i].checked ? "[x] " : "[ ] ") + label).join("\n");
+      const who = document.getElementById("name").value.trim() || "[Name]";
+      const email = document.getElementById("email").value.trim() || "[email on the account]";
+      const card = document.getElementById("card").value.trim();
+      const ending = rows.filter((r) => cutoff == null || r.a.year > cutoff);
+      const cancelTargets = (ending.length ? ending : rows).map((r) => r.c.name).filter(Boolean);
+      const targetLine = cancelTargets.length ? cancelTargets.join(", ") : "[service name]";
+      const text = [
+        fmt(new Date()),
+        "",
+        "Subscription audit",
+        "Name: " + who,
+        "Email on the accounts: " + email,
+        card ? "Account or card ending: " + card : "Account or card ending: not entered",
+        cutoff == null ? "Flag line: not set. No dollar cutoff is implied." : "Flag line I set: a year over " + money(cutoff),
+        "",
+        "Annualized cost (page arithmetic, not a billing calendar)",
+        detail,
+        "Year, added up: " + money(yearTotal),
+        "Same total divided by 12: " + money(monthEq),
+        "",
+        "Cancellation note",
+        "To the billing desk for: " + targetLine,
+        "",
+        "Please cancel the subscription" + (cancelTargets.length === 1 ? "" : "s") + " named above on the account for " + email + (card ? " (ending " + card + ")" : "") + ". Please stop future charges and send written confirmation that the cancellation is in effect, including the date it took effect.",
+        "I am not asking this note to state a refund rule or a trial window. Those are on your terms or my statement.",
+        "",
+        "Checklist:",
+        list,
+        "",
+        "This packet is not a cancellation by itself. Send it the way that account requires, and keep whatever confirmation they send.",
+        "",
+        who
+      ].join("\n");
+      document.getElementById("letter").textContent = text;
+    }
+    document.getElementById("example").addEventListener("click", () => {
+      document.getElementById("name").value = "Jordan Hale";
+      document.getElementById("email").value = "jordan@example.com";
+      document.getElementById("card").value = "4242";
+      document.getElementById("flag").value = "200";
+      document.getElementById("paste").value = "StreamCo 15.49 monthly\nCloud box 119 yearly\nNews app 9.99 quarterly";
+      charges = [
+        { name: "StreamCo", amount: "15.49", cadence: "monthly", assumed: false },
+        { name: "Cloud box", amount: "119", cadence: "yearly", assumed: false },
+        { name: "News app", amount: "9.99", cadence: "quarterly", assumed: false }
+      ];
+      saveCharges();
+      drawCharges();
+      form.dispatchEvent(new Event("input", { bubbles: true }));
+      render();
+    });
+    form.addEventListener("input", render);
+    document.getElementById("copy").addEventListener("click", () => copyText(document.getElementById("letter").textContent, document.getElementById("copy")));
+    render();
+  </script>
+</body>
+</html>
