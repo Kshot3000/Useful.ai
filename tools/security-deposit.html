@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Security deposit timeline and demand letter — Useful.ai</title>
+  <meta name="description" content="Security deposit timeline calculator and demand-letter draft. You enter the state's deadline in days. No invented statutes.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,560&family=IBM+Plex+Mono:wght@400;500&family=Public+Sans:wght@400;650&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/site.css">
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <a class="brand" href="../index.html">Useful<span>.ai</span></a>
+      <nav><a href="../index.html">All tools</a></nav>
+    </header>
+    <article class="tool">
+      <p class="kicker">After move-out</p>
+      <h1>Security deposit timeline</h1>
+      <p class="lede">Enter the move-out date and the deadline in days from your state's statute or the lease, whichever you confirmed. This page does not look up or invent that number. It dates the demand and keeps a photo log.</p>
+      <div class="panel">
+        <ol class="steps">
+          <li>Write down the date you returned keys and possession. That is the date this timeline starts from, unless your lease or statute uses a different trigger. Confirm which one applies.</li>
+          <li>Look up the return deadline on the state legislature or attorney-general site, and read the lease. Type the number of days below. Do not guess.</li>
+          <li>Photograph each room, appliance, and any damage the landlord listed. Log them here with the date taken.</li>
+          <li>Send a forwarding address in writing if the statute or lease requires it. This page does not know whether yours does.</li>
+          <li>If the deadline passes with no itemized statement or refund, copy the demand letter and send it the way the statute requires (mail, certified, or otherwise). Confirm that method yourself.</li>
+        </ol>
+        <div class="row">
+          <div>
+            <label for="tenant">Your name</label>
+            <input id="tenant" placeholder="Tenant name">
+          </div>
+          <div>
+            <label for="landlord">Landlord or manager</label>
+            <input id="landlord" placeholder="Name">
+          </div>
+        </div>
+        <label for="lladdr">Landlord mailing address</label>
+        <input id="lladdr" placeholder="Street, city, state, ZIP">
+        <div class="row">
+          <div>
+            <label for="unit">Rental address</label>
+            <input id="unit" placeholder="Street, unit, city, state">
+          </div>
+          <div>
+            <label for="forward">Your forwarding address</label>
+            <input id="forward" placeholder="Where the refund should go">
+          </div>
+        </div>
+        <div class="row">
+          <div>
+            <label for="moveout">Move-out date (keys returned)</label>
+            <input id="moveout" type="date">
+          </div>
+          <div>
+            <label for="days">Deadline in days (you look this up)</label>
+            <input id="days" type="number" min="1" step="1" placeholder="From statute or lease">
+          </div>
+        </div>
+        <div class="row">
+          <div>
+            <label for="deposit">Deposit paid</label>
+            <input id="deposit" type="number" min="0" step="0.01" placeholder="0.00">
+          </div>
+          <div>
+            <label for="returned">Amount already returned</label>
+            <input id="returned" type="number" min="0" step="0.01" placeholder="0.00">
+          </div>
+        </div>
+        <label for="deductions">Itemized deductions the landlord claimed, if any</label>
+        <textarea id="deductions" placeholder="None received yet, or paste their list with amounts."></textarea>
+        <label>Photo log</label>
+        <div id="photos"></div>
+        <button class="secondary" id="addphoto" type="button">Add photo row</button>
+        <div class="out" id="timeline"></div>
+        <button id="run" type="button">Build letter and copy packet</button>
+        <pre class="letter" id="letter">Fill the fields, then build the packet.</pre>
+      </div>
+      <p class="note">Not legal, tax, or medical advice. Return deadlines, interest, penalties, and how you must send notice are state law and lease language. Confirm them on an official source before you rely on the date this page calculates.</p>
+    </article>
+  </div>
+  <script>
+    const photos = document.getElementById("photos");
+    function addPhoto() {
+      const row = document.createElement("div");
+      row.className = "row";
+      row.style.marginTop = "8px";
+      row.innerHTML = '<div><input class="room" placeholder="Room or item"></div><div><input class="shot" type="date" aria-label="Date photographed"></div>';
+      const note = document.createElement("input");
+      note.className = "cap";
+      note.placeholder = "What the photo shows";
+      note.style.marginTop = "8px";
+      const wrap = document.createElement("div");
+      wrap.appendChild(row);
+      wrap.appendChild(note);
+      photos.appendChild(wrap);
+    }
+    addPhoto();
+    document.getElementById("addphoto").addEventListener("click", addPhoto);
+
+    function money(n) {
+      if (!isFinite(n)) return "[amount]";
+      return n.toLocaleString("en-US", { style: "currency", currency: "USD" });
+    }
+    function iso(d) {
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, "0");
+      const day = String(d.getDate()).padStart(2, "0");
+      return y + "-" + m + "-" + day;
+    }
+
+    document.getElementById("run").addEventListener("click", () => {
+      const moveRaw = document.getElementById("moveout").value;
+      const days = parseInt(document.getElementById("days").value, 10);
+      const deposit = parseFloat(document.getElementById("deposit").value);
+      const returned = parseFloat(document.getElementById("returned").value) || 0;
+      const tenant = document.getElementById("tenant").value || "[tenant]";
+      const landlord = document.getElementById("landlord").value || "[landlord]";
+      const unit = document.getElementById("unit").value || "[rental address]";
+      const forward = document.getElementById("forward").value || "[forwarding address]";
+      const lladdr = document.getElementById("lladdr").value || "[landlord address]";
+      const deductions = document.getElementById("deductions").value || "None received.";
+      let due = "[enter move-out date and deadline days]";
+      let status = "Deadline not calculated. Enter a move-out date and the number of days you confirmed.";
+      if (moveRaw && Number.isFinite(days) && days > 0) {
+        const start = new Date(moveRaw + "T12:00:00");
+        const end = new Date(start.getTime());
+        end.setDate(end.getDate() + days);
+        due = iso(end);
+        const today = new Date();
+        today.setHours(12, 0, 0, 0);
+        const left = Math.round((end - today) / 86400000);
+        status = left > 0
+          ? left + " day(s) left before the date you entered."
+          : left === 0
+            ? "The date you calculated is today."
+            : Math.abs(left) + " day(s) past the date you calculated.";
+      }
+      const balance = (Number.isFinite(deposit) ? deposit : 0) - returned;
+      const log = [];
+      photos.querySelectorAll(".room").forEach((el, i) => {
+        const room = el.value || "[room]";
+        const shot = photos.querySelectorAll(".shot")[i].value || "[date]";
+        const cap = photos.querySelectorAll(".cap")[i].value || "[caption]";
+        log.push((i + 1) + ". " + room + " — photographed " + shot + " — " + cap);
+      });
+      document.getElementById("timeline").innerHTML =
+        '<div class="stat"><span>Calculated return date</span><b>' + due + '</b></div>' +
+        '<div class="stat"><span>Status</span><b>' + status + '</b></div>' +
+        '<div class="stat"><span>Deposit minus amount returned</span><b>' + (Number.isFinite(deposit) ? money(balance) : "[enter deposit]") + '</b></div>';
+      const text = [
+        "SECURITY DEPOSIT DEMAND",
+        "Date of this letter: " + iso(new Date()),
+        "To: " + landlord,
+        lladdr,
+        "From: " + tenant,
+        "Forwarding address: " + forward,
+        "Property: " + unit,
+        "",
+        "I returned keys and possession on " + (moveRaw || "[move-out date]") + ".",
+        "The deadline I confirmed (statute or lease) is " + (Number.isFinite(days) ? days + " days" : "[days]") + ", which I calculate as " + due + ".",
+        "Deposit paid: " + (Number.isFinite(deposit) ? money(deposit) : "[amount]") + ".",
+        "Already returned: " + money(returned) + ".",
+        "Balance I am asking you to return or itemize: " + (Number.isFinite(deposit) ? money(balance) : "[amount]") + ".",
+        "",
+        "Deductions you claimed:",
+        deductions,
+        "",
+        "Please send the remaining deposit, or a written itemization with receipts as your statute or our lease requires, to the forwarding address above.",
+        "This letter is a request for an accounting. It is not a filing in court.",
+        "",
+        "PHOTO LOG",
+        log.join("\n") || "[no photos logged]",
+        "",
+        status
+      ].join("\n");
+      document.getElementById("letter").textContent = text;
+      navigator.clipboard.writeText(text).catch(() => {});
+    });
+  </script>
+</body>
+</html>

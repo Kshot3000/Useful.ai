@@ -23,6 +23,13 @@
       "status": "live",
       "path": "tools/accident-72.html",
       "search": ["what to do after a car accident", "accident checklist"]
+    },
+    {
+      "slug": "security-deposit",
+      "title": "Security deposit timeline and demand letter",
+      "status": "live",
+      "path": "tools/security-deposit.html",
+      "search": ["security deposit demand letter", "security deposit return deadline", "how to get security deposit back"]
     }
   ]
 }
