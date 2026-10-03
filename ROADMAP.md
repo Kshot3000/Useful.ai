@@ -12,7 +12,7 @@ Ship in order. Check the box in the same commit that adds the page. Register the
 - [x] Contractor bid comparison — normalize 3 bids to the same scope, flag missing line items.
 - [x] Move paperwork checklist — DMV, voter, insurance, USPS, schools. Link only to official domains.
 - [x] Medical EOB decoder — user pastes allowed / billed / patient responsibility labels and gets a plain-English reading. No code lookup that invents prices.
-- [ ] Debt payoff order — avalanche vs snowball on user-entered balances and APRs.
+- [x] Debt payoff order — avalanche vs snowball on user-entered balances and APRs.
 - [ ] Out-of-pocket max tracker — user enters plan deductible, coinsurance, OOP max, and claims.
 
 ## Later, only with a cited source
