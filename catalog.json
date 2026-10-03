@@ -1,0 +1,28 @@
+{
+  "name": "Useful.ai",
+  "live": "https://kshot3000.github.io/Useful.ai/",
+  "rule": "Never invent statutes, tax figures, medical codes, or deadlines. Date-stamp every sourced number. Tools are checklists and calculators, not advice.",
+  "tools": [
+    {
+      "slug": "medical-bill",
+      "title": "Medical bill dispute packet",
+      "status": "live",
+      "path": "tools/medical-bill.html",
+      "search": ["dispute medical bill", "itemized hospital bill", "insurance underpayment letter"]
+    },
+    {
+      "slug": "take-home",
+      "title": "2026 federal take-home estimate",
+      "status": "live",
+      "path": "tools/take-home.html",
+      "search": ["2026 take home pay calculator", "salary after tax 2026"]
+    },
+    {
+      "slug": "accident-72",
+      "title": "72-hour accident checklist",
+      "status": "live",
+      "path": "tools/accident-72.html",
+      "search": ["what to do after a car accident", "accident checklist"]
+    }
+  ]
+}

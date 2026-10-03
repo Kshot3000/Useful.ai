@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Medical bill dispute packet — Useful.ai</title>
+  <meta name="description" content="Compare billed charges with insurance payments, flag duplicate lines, and draft an itemized-bill dispute letter.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,560&family=IBM+Plex+Mono:wght@400;500&family=Public+Sans:wght@400;650&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/site.css">
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <a class="brand" href="../index.html">Useful<span>.ai</span></a>
+      <nav><a href="../index.html">All tools</a></nav>
+    </header>
+    <article class="tool">
+      <p class="kicker">Hospital and insurer mail</p>
+      <h1>Medical bill dispute packet</h1>
+      <p class="lede">Enter the numbers from the bill and the explanation of benefits. This does not look up procedure prices and it does not decide if a charge is legal.</p>
+      <div class="panel">
+        <div class="row">
+          <div>
+            <label for="provider">Provider</label>
+            <input id="provider" placeholder="County General Hospital">
+          </div>
+          <div>
+            <label for="account">Account or claim number</label>
+            <input id="account" placeholder="From the bill">
+          </div>
+        </div>
+        <div class="row">
+          <div>
+            <label for="billed">Total billed</label>
+            <input id="billed" type="number" min="0" step="0.01" value="0">
+          </div>
+          <div>
+            <label for="allowed">Insurance allowed amount</label>
+            <input id="allowed" type="number" min="0" step="0.01" value="0">
+          </div>
+        </div>
+        <div class="row">
+          <div>
+            <label for="paid">Insurance paid</label>
+            <input id="paid" type="number" min="0" step="0.01" value="0">
+          </div>
+          <div>
+            <label for="patient">Amount they say you owe</label>
+            <input id="patient" type="number" min="0" step="0.01" value="0">
+          </div>
+        </div>
+        <label for="lines">Line items, one per line: date | code | description | amount</label>
+        <textarea id="lines" placeholder="2026-03-02 | 99283 | ER visit | 1800&#10;2026-03-02 | 99283 | ER visit | 1800"></textarea>
+        <button id="run" type="button">Build packet</button>
+        <div class="out" id="out"></div>
+      </div>
+      <p class="note">Not legal, tax, or medical advice. Appeal windows are on your EOB and plan document — this page does not invent them. Ask the provider for an itemized bill and a copy of the claim as submitted.</p>
+    </article>
+  </div>
+  <script>
+    const money = n => n.toLocaleString("en-US", { style: "currency", currency: "USD" });
+    document.getElementById("run").addEventListener("click", () => {
+      const provider = document.getElementById("provider").value.trim() || "the provider";
+      const account = document.getElementById("account").value.trim() || "[account number]";
+      const billed = Number(document.getElementById("billed").value) || 0;
+      const allowed = Number(document.getElementById("allowed").value) || 0;
+      const paid = Number(document.getElementById("paid").value) || 0;
+      const patient = Number(document.getElementById("patient").value) || 0;
+      const gap = billed - allowed;
+      const unexplained = patient - Math.max(0, allowed - paid);
+      const raw = document.getElementById("lines").value.split("\n").map(s => s.trim()).filter(Boolean);
+      const seen = new Map();
+      const dupes = [];
+      raw.forEach(line => {
+        const key = line.toLowerCase();
+        seen.set(key, (seen.get(key) || 0) + 1);
+        if (seen.get(key) === 2) dupes.push(line);
+      });
+      const letter = [
+        "Billing department,",
+        "",
+        "I am writing about account " + account + " at " + provider + ".",
+        "Please send a fully itemized bill with date of service, procedure code, description, charge, adjustment, and patient balance for every line.",
+        "",
+        "Figures I have today:",
+        "Billed: " + money(billed),
+        "Allowed: " + money(allowed),
+        "Insurance paid: " + money(paid),
+        "Amount demanded from me: " + money(patient),
+        "",
+        dupes.length ? "These lines look duplicated. Please confirm they are not double-billed:\n- " + dupes.join("\n- ") : "I did not flag duplicate lines from what I pasted.",
+        "",
+        "Please do not send this account to collections while the itemized bill and this dispute are open. Confirm the pause in writing.",
+        "",
+        "Name:",
+        "Date of service:",
+        "Phone:"
+      ].join("\n");
+      document.getElementById("out").innerHTML =
+        '<div class="stat"><span>Billed above allowed</span><b>' + money(gap) + '</b></div>' +
+        '<div class="stat"><span>Patient balance vs allowed minus paid</span><b>' + money(unexplained) + '</b></div>' +
+        '<div class="stat"><span>Possible duplicate lines</span><b>' + dupes.length + '</b></div>' +
+        '<p class="note">A positive gap is normal on a chargemaster bill. A patient balance larger than allowed minus paid is the number to ask about. It is not proof of an error.</p>' +
+        '<pre class="letter" id="letter"></pre>' +
+        '<button class="secondary" id="copy" type="button">Copy letter</button>';
+      document.getElementById("letter").textContent = letter;
+      document.getElementById("copy").addEventListener("click", () => navigator.clipboard.writeText(letter));
+    });
+  </script>
+</body>
+</html>

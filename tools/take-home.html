@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>2026 federal take-home estimate — Useful.ai</title>
+  <meta name="description" content="Estimate 2026 federal income tax and FICA on a salary. Single and married filing jointly. Brackets from IRS IR-2025-103.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,560&family=IBM+Plex+Mono:wght@400;500&family=Public+Sans:wght@400;650&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/site.css">
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <a class="brand" href="../index.html">Useful<span>.ai</span></a>
+      <nav><a href="../index.html">All tools</a></nav>
+    </header>
+    <article class="tool">
+      <p class="kicker">Tax year 2026 · filed in 2027</p>
+      <h1>Federal take-home estimate</h1>
+      <p class="lede">Ordinary wages only. Standard deduction. No credits, no pre-tax 401(k), no additional Medicare tax, no Social Security wage-base cap. State tax is whatever you type.</p>
+      <div class="panel">
+        <div class="row">
+          <div>
+            <label for="gross">Gross annual wages</label>
+            <input id="gross" type="number" min="0" step="100" value="85000">
+          </div>
+          <div>
+            <label for="status">Filing status</label>
+            <select id="status">
+              <option value="single">Single</option>
+              <option value="joint">Married filing jointly</option>
+            </select>
+          </div>
+        </div>
+        <label for="state">State income tax you want subtracted (optional)</label>
+        <input id="state" type="number" min="0" step="100" value="0">
+        <button id="run" type="button">Estimate</button>
+        <div class="out" id="out"></div>
+      </div>
+      <p class="note">Brackets and standard deduction: IRS IR-2025-103, October 9, 2025, for tax year 2026. Single deduction $16,100. Joint deduction $32,200. 10% applies to taxable income of $12,400 or less single ($24,800 joint); 12% over that; 22% over $50,400 ($100,800); 24% over $105,700 ($211,400); 32% over $201,775 ($403,550); 35% over $256,225 ($512,450); 37% over $640,600 ($768,700). Employee FICA modeled as a flat 7.65%. Not tax advice. Checked October 3, 2026.</p>
+    </article>
+  </div>
+  <script>
+    const brackets = {
+      single: { ded: 16100, bands: [[12400, 0.10], [50400, 0.12], [105700, 0.22], [201775, 0.24], [256225, 0.32], [640600, 0.35], [Infinity, 0.37]] },
+      joint: { ded: 32200, bands: [[24800, 0.10], [100800, 0.12], [211400, 0.22], [403550, 0.24], [512450, 0.32], [768700, 0.35], [Infinity, 0.37]] }
+    };
+    const money = n => n.toLocaleString("en-US", { style: "currency", currency: "USD" });
+    function tax(taxable, bands) {
+      let owed = 0, prev = 0;
+      for (const [cap, rate] of bands) {
+        if (taxable <= prev) break;
+        const slice = Math.min(taxable, cap) - prev;
+        owed += slice * rate;
+        prev = cap;
+      }
+      return owed;
+    }
+    document.getElementById("run").addEventListener("click", () => {
+      const gross = Math.max(0, Number(document.getElementById("gross").value) || 0);
+      const state = Math.max(0, Number(document.getElementById("state").value) || 0);
+      const spec = brackets[document.getElementById("status").value];
+      const taxable = Math.max(0, gross - spec.ded);
+      const federal = tax(taxable, spec.bands);
+      const fica = gross * 0.0765;
+      const net = gross - federal - fica - state;
+      document.getElementById("out").innerHTML =
+        '<div class="stat"><span>Standard deduction</span><b>' + money(spec.ded) + '</b></div>' +
+        '<div class="stat"><span>Taxable wages</span><b>' + money(taxable) + '</b></div>' +
+        '<div class="stat"><span>Federal income tax</span><b>' + money(federal) + '</b></div>' +
+        '<div class="stat"><span>FICA estimate, 7.65%</span><b>' + money(fica) + '</b></div>' +
+        '<div class="stat"><span>State tax you entered</span><b>' + money(state) + '</b></div>' +
+        '<div class="stat"><span>Estimated annual take-home</span><b>' + money(net) + '</b></div>' +
+        '<div class="stat"><span>Per month</span><b>' + money(net / 12) + '</b></div>';
+    });
+  </script>
+</body>
+</html>

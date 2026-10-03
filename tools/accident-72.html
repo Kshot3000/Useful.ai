@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>72 hours after a car accident — Useful.ai</title>
+  <meta name="description" content="A first-72-hours car accident checklist and packet. Scene, report, insurers, medical, repair. No invented state laws.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,560&family=IBM+Plex+Mono:wght@400;500&family=Public+Sans:wght@400;650&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/site.css">
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <a class="brand" href="../index.html">Useful<span>.ai</span></a>
+      <nav><a href="../index.html">All tools</a></nav>
+    </header>
+    <article class="tool">
+      <p class="kicker">Before the claim gets messy</p>
+      <h1>72 hours after a crash</h1>
+      <p class="lede">A sequence, then a packet you can copy. Deadlines differ by state and policy. This page does not invent them. If anyone is hurt, call emergency services first.</p>
+      <div class="panel">
+        <ol class="steps">
+          <li>Move out of traffic if the cars can move and it is safe. Turn on hazards.</li>
+          <li>Call emergency services if anyone is injured, a car cannot move, or the other driver leaves.</li>
+          <li>Photograph plates, all four corners, the scene, skid marks, and the other driver's license and insurance card.</li>
+          <li>Get the other driver's name, insurer, policy number, and the reporting officer's name and report number.</li>
+          <li>Do not give a recorded statement to the other insurer until you have your own claim open.</li>
+          <li>Tell your insurer. Ask how long you have to report a claim. Write that date down. This page does not know it.</li>
+          <li>See a clinician if you hurt, even if it feels minor. Keep discharge papers.</li>
+          <li>Get one written repair estimate before authorizing tear-down. Keep the rental policy limit in writing.</li>
+        </ol>
+        <div class="row">
+          <div>
+            <label for="when">Date and time</label>
+            <input id="when" placeholder="2026-10-03 18:40">
+          </div>
+          <div>
+            <label for="where">Where</label>
+            <input id="where" placeholder="Intersection or highway mile">
+          </div>
+        </div>
+        <label for="report">Report number and insurer claim numbers</label>
+        <textarea id="report" placeholder="Police report:&#10;My claim:&#10;Their claim:"></textarea>
+        <button id="run" type="button">Copy packet</button>
+        <pre class="letter" id="letter">Fill the fields, then copy.</pre>
+      </div>
+      <p class="note">Not legal advice. Reporting duties and suit deadlines are state law and policy language. Confirm both with your insurer and, if the damage or injury is serious, a lawyer in that state.</p>
+    </article>
+  </div>
+  <script>
+    const letter = document.getElementById("letter");
+    document.getElementById("run").addEventListener("click", () => {
+      const text = [
+        "ACCIDENT PACKET",
+        "When: " + (document.getElementById("when").value || "[date time]"),
+        "Where: " + (document.getElementById("where").value || "[place]"),
+        "",
+        document.getElementById("report").value || "[report and claim numbers]",
+        "",
+        "Still to collect: photos, other driver license and insurance, officer name, my insurer report deadline, medical discharge, one written repair estimate, rental limit in writing.",
+        "I have not given a recorded statement to the other insurer."
+      ].join("\n");
+      letter.textContent = text;
+      navigator.clipboard.writeText(text).catch(() => {});
+    });
+  </script>
+</body>
+</html>
