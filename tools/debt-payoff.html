@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Debt payoff order — Useful.ai</title>
+  <meta name="description" content="Compare avalanche and snowball payoff order on balances, APRs, and minimums you enter. Months and interest are page arithmetic, not a lender quote.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect fill='%231a1916' width='32' height='32' rx='6'/%3E%3Cpath d='M8 22 V10 h4.2 c3.2 0 5 1.5 5 3.8 0 1.6-.9 2.8-2.3 3.3 1.7.4 2.8 1.7 2.8 3.5 0 2.5-2 3.9-5.4 3.9H8zm3-6.8h1.4c1.3 0 2-.6 2-1.6s-.7-1.5-2-1.5H11v3.1zm0 2.4v3.2h1.7c1.4 0 2.2-.6 2.2-1.6s-.8-1.6-2.2-1.6H11z' fill='%23f4f1ea'/%3E%3C/svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,500&family=Outfit:wght@400;520;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/site.css">
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <a class="brand" href="../index.html">Useful<i>.ai</i></a>
+      <nav><a href="../index.html">All tools</a></nav>
+    </header>
+    <p class="crumb"><a href="../index.html">Tools</a> / Debt payoff order</p>
+    <section class="hero">
+      <p class="kicker">Avalanche and snowball</p>
+      <h1>Debt payoff order</h1>
+      <p class="lede">Enter the balances, APRs, and minimums from the statements. The page orders them two ways and runs the same monthly arithmetic on both. It does not look up a rate.</p>
+    </section>
+    <div class="layout">
+      <form class="panel" id="form">
+        <ol class="steps">
+          <li><span>01</span><div>Type each balance, APR, and minimum as printed. This page does not fetch a bureau or a card issuer.</div></li>
+          <li><span>02</span><div>Add any extra you can send after every minimum. Leave it blank if there is none.</div></li>
+          <li><span>03</span><div>Avalanche puts the extra on the highest APR. Snowball puts it on the smallest balance. A freed minimum rolls to the next debt in that order.</div></li>
+        </ol>
+        <div class="row">
+          <div class="field"><label for="who">Name on the packet</label><input id="who" placeholder="Name"></div>
+          <div class="field"><label for="extra">Extra after all minimums, per month</label><input id="extra" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Blank means 0"></div>
+        </div>
+        <label>Debts</label>
+        <div id="debts"></div>
+        <div class="actions">
+          <button class="ghost" id="add-debt" type="button">Add debt</button>
+          <button class="secondary" id="example" type="button">Load example</button>
+        </div>
+        <label>Before you treat an order as a plan</label>
+        <div id="checks"></div>
+        <p class="note">Each month the page adds balance × APR ÷ 12, then applies that debt’s minimum, then the extra, to the target. Fees, promo end dates, and daily compounding are not in the model. If a minimum does not cover that month’s interest, the line is flagged — the page does not invent a required payment.</p>
+      </form>
+      <aside class="result" aria-live="polite">
+        <p class="kicker">Same dollars, two orders</p>
+        <div class="statgrid" id="stats"></div>
+        <div id="flagbox"></div>
+        <table class="bands" id="order-table"></table>
+        <pre class="letter" id="letter"></pre>
+        <div class="actions">
+          <button type="button" id="copy">Copy packet</button>
+          <button type="button" class="secondary" onclick="window.print()">Print</button>
+        </div>
+      </aside>
+    </div>
+    <footer class="site"><span>Not legal, tax, or medical advice. Not a lender quote and not credit counseling. Balances, APRs, and minimums are numbers you enter. Dated 3 October 2026.</span><span><a href="../index.html">All tools</a></span></footer>
+  </div>
+  <script src="../assets/site.js"></script>
+  <script>
+    const form = document.getElementById("form");
+    persist("useful-debt-payoff", form);
+    const ITEMS = [
+      "Balances match the latest statement, not a rounded memory",
+      "APRs are the rates printed on those statements",
+      "Minimums are the amounts the statements require this month",
+      "The extra is money I can send after every minimum"
+    ];
+    const checks = document.getElementById("checks");
+    const savedChecks = JSON.parse(localStorage.getItem("useful-debt-payoff-checks") || "[]");
+    ITEMS.forEach((label, i) => {
+      const row = document.createElement("label");
+      row.className = "check";
+      row.innerHTML = '<input type="checkbox" data-i="' + i + '"> <span>' + label + '</span>';
+      const box = row.querySelector("input");
+      box.checked = !!savedChecks[i];
+      box.addEventListener("change", () => { saveChecks(); render(); });
+      checks.appendChild(row);
+    });
+    function saveChecks() {
+      localStorage.setItem("useful-debt-payoff-checks", JSON.stringify([...checks.querySelectorAll("input")].map(el => el.checked)));
+    }
+    const debtsEl = document.getElementById("debts");
+    let debts = JSON.parse(localStorage.getItem("useful-debt-payoff-debts") || "[]");
+    function saveDebts() {
+      localStorage.setItem("useful-debt-payoff-debts", JSON.stringify(debts));
+    }
+    function escapeAttr(s) {
+      var amp = String.fromCharCode(38);
+      return String(s || "").replace(/&/g, amp + "amp;").replace(/"/g, amp + "quot;").replace(/</g, amp + "lt;");
+    }
+    function drawDebts() {
+      debtsEl.innerHTML = "";
+      debts.forEach((d) => {
+        const block = document.createElement("div");
+        block.className = "debt-block";
+        block.innerHTML =
+          '<div class="photo-row">' +
+            '<input data-k="name" value="' + escapeAttr(d.name) + '" placeholder="Name on the statement">' +
+            '<input data-k="balance" value="' + escapeAttr(d.balance) + '" inputmode="decimal" placeholder="Balance">' +
+            '<button type="button" class="secondary" data-remove="1">Remove</button>' +
+          '</div>' +
+          '<div class="row">' +
+            '<input data-k="apr" value="' + escapeAttr(d.apr) + '" inputmode="decimal" placeholder="APR %">' +
+            '<input data-k="min" value="' + escapeAttr(d.min) + '" inputmode="decimal" placeholder="Minimum this month">' +
+          '</div>';
+        debtsEl.appendChild(block);
+      });
+    }
+    drawDebts();
+    debtsEl.addEventListener("input", (e) => {
+      const block = e.target.closest(".debt-block");
+      if (!block) return;
+      const i = [...debtsEl.children].indexOf(block);
+      debts[i][e.target.dataset.k] = e.target.value;
+      saveDebts();
+      render();
+    });
+    debtsEl.addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-remove]");
+      if (!btn) return;
+      const block = btn.closest(".debt-block");
+      debts.splice([...debtsEl.children].indexOf(block), 1);
+      saveDebts();
+      drawDebts();
+      render();
+    });
+    document.getElementById("add-debt").addEventListener("click", () => {
+      debts.push({ name: "", balance: "", apr: "", min: "" });
+      saveDebts();
+      drawDebts();
+      render();
+    });
+    function num(v) {
+      if (v === "" || v == null) return null;
+      const n = Number(String(v).replace(/,/g, ""));
+      return Number.isFinite(n) ? n : null;
+    }
+    function fmt(d) { return d.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }); }
+    function parsed() {
+      return debts.map((d, i) => {
+        const balance = num(d.balance);
+        const apr = num(d.apr);
+        const min = num(d.min);
+        if (balance == null || balance <= 0 || apr == null || apr < 0 || min == null || min < 0) return null;
+        return { id: i, name: (d.name || "").trim() || ("Debt " + (i + 1)), balance: balance, apr: apr, min: min };
+      }).filter(Boolean);
+    }
+    function simulate(list, extra, mode) {
+      const acc = list.map((d) => ({ id: d.id, name: d.name, bal: d.balance, apr: d.apr, min: d.min }));
+      let months = 0;
+      let interest = 0;
+      const order = [];
+      const cap = 600;
+      let growing = false;
+      while (acc.some((a) => a.bal > 0.009) && months < cap) {
+        const open = acc.filter((a) => a.bal > 0.009);
+        const startSum = open.reduce((s, a) => s + a.bal, 0);
+        open.forEach((a) => {
+          const interestDue = a.bal * (a.apr / 100) / 12;
+          a.bal += interestDue;
+          interest += interestDue;
+        });
+        let pool = extra + open.reduce((s, a) => s + a.min, 0);
+        open.forEach((a) => {
+          const pay = Math.min(a.bal, a.min, pool);
+          a.bal -= pay;
+          pool -= pay;
+        });
+        const priority = acc.filter((a) => a.bal > 0.009).sort((a, b) => {
+          if (mode === "avalanche") return (b.apr - a.apr) || (a.bal - b.bal) || (a.id - b.id);
+          return (a.bal - b.bal) || (b.apr - a.apr) || (a.id - b.id);
+        });
+        priority.forEach((a) => {
+          if (pool <= 0.009) return;
+          const pay = Math.min(a.bal, pool);
+          a.bal -= pay;
+          pool -= pay;
+        });
+        acc.forEach((a) => {
+          if (a.bal <= 0.009 && !order.some((o) => o.id === a.id)) order.push({ id: a.id, name: a.name, month: months + 1 });
+        });
+        months += 1;
+        const endSum = acc.reduce((s, a) => s + Math.max(a.bal, 0), 0);
+        if (endSum > startSum + 0.05 && !order.length) growing = true;
+        if (pool <= 0.009 && endSum > startSum + 0.05) growing = true;
+        if (growing && months > 3 && order.length === 0) break;
+      }
+      const left = acc.filter((a) => a.bal > 0.009);
+      return {
+        months: left.length ? null : months,
+        interest: interest,
+        order: order,
+        remaining: left.map((a) => a.name),
+        capped: months >= cap && left.length > 0,
+        growing: growing && left.length > 0
+      };
+    }
+    function monthLabel(result) {
+      if (result.months == null) return result.growing ? "Balances rise" : "Not cleared in 600 months";
+      return result.months + (result.months === 1 ? " month" : " months");
+    }
+    function orderText(result) {
+      if (!result.order.length) return "[No debt clears on these payments]";
+      const lines = result.order.map((o, i) => (i + 1) + ". " + o.name + " — month " + o.month);
+      if (result.remaining.length) lines.push("Still open: " + result.remaining.join(", "));
+      return lines.join("\n");
+    }
+    function render() {
+      const list = parsed();
+      const extraRaw = document.getElementById("extra").value;
+      const extra = extraRaw === "" ? 0 : num(extraRaw);
+      const extraOk = extra != null && extra >= 0;
+      const avalanche = list.length && extraOk ? simulate(list, extra, "avalanche") : null;
+      const snowball = list.length && extraOk ? simulate(list, extra, "snowball") : null;
+      const principal = list.reduce((s, d) => s + d.balance, 0);
+      const shortMin = list.filter((d) => d.min + 0.009 < d.balance * (d.apr / 100) / 12);
+      document.getElementById("stats").innerHTML =
+        '<div class="stat"><span>Debts with balance, APR, and minimum</span><b>' + list.length + '</b></div>' +
+        '<div class="stat"><span>Balances added</span><b>' + money(principal) + '</b></div>' +
+        '<div class="stat"><span>Extra you entered</span><b>' + (extraRaw === "" ? "None" : money(extra || 0)) + '</b></div>' +
+        '<div class="stat emph"><span>Avalanche interest</span><b>' + (avalanche ? money(avalanche.interest) : "—") + '</b></div>' +
+        '<div class="stat emph"><span>Snowball interest</span><b>' + (snowball ? money(snowball.interest) : "—") + '</b></div>';
+      const flagbox = document.getElementById("flagbox");
+      if (!list.length) flagbox.innerHTML = '<div class="callout">Add a debt with a balance, an APR, and a minimum. Interest stays blank until those three are numbers you typed.</div>';
+      else if (!extraOk) flagbox.innerHTML = '<div class="callout warn">Extra payment is not a number. Leave it blank for zero, or type the amount after minimums.</div>';
+      else if (avalanche.growing || snowball.growing) flagbox.innerHTML = '<div class="callout warn">On these minimums and this extra, at least one order does not reduce the balances. The page will not invent a higher payment.</div>';
+      else if (shortMin.length) flagbox.innerHTML = '<div class="callout warn">' + shortMin.length + ' minimum' + (shortMin.length === 1 ? '' : 's') + ' do not cover that debt’s first month of interest (balance × APR ÷ 12) before extra is applied.</div>';
+      else if (avalanche && snowball) {
+        const gap = Math.abs(avalanche.interest - snowball.interest);
+        const lead = avalanche.interest < snowball.interest - 0.005 ? "Avalanche" : snowball.interest < avalanche.interest - 0.005 ? "Snowball" : "Neither order";
+        flagbox.innerHTML = '<div class="callout ok">' + (lead === "Neither order" ? "Both orders show the same interest on these figures." : lead + " shows " + money(gap) + " less interest on these figures. That is arithmetic, not a recommendation.") + '</div>';
+      } else flagbox.innerHTML = "";
+      const table = document.getElementById("order-table");
+      if (avalanche && snowball) {
+        table.innerHTML =
+          '<thead><tr><th>Order</th><th>Cleared</th><th>Interest</th></tr></thead><tbody>' +
+          '<tr><td>Avalanche — highest APR</td><td>' + monthLabel(avalanche) + '</td><td>' + money(avalanche.interest) + '</td></tr>' +
+          '<tr><td>Snowball — smallest balance</td><td>' + monthLabel(snowball) + '</td><td>' + money(snowball.interest) + '</td></tr>' +
+          '</tbody>';
+      } else table.innerHTML = "";
+      const lines = list.length
+        ? list.map((d) => d.name + ": balance " + money(d.balance) + ", APR " + d.apr + "%, minimum " + money(d.min)).join("\n")
+        : "[No complete debts yet]";
+      const shortLine = shortMin.length
+        ? shortMin.map((d) => d.name + " minimum " + money(d.min) + " is under first-month interest " + money(d.balance * (d.apr / 100) / 12)).join("\n")
+        : "None of the typed minimums are under that debt’s first-month interest.";
+      const listChecks = ITEMS.map((label, i) => (checks.querySelectorAll("input")[i].checked ? "[x] " : "[ ] ") + label).join("\n");
+      const who = document.getElementById("who").value.trim() || "[Name]";
+      const text = [
+        fmt(new Date()),
+        "",
+        "Debt payoff order",
+        "Name: " + who,
+        "Extra after all minimums: " + (extraRaw === "" ? "not entered (treated as 0)" : money(extra || 0) + " per month"),
+        "",
+        "Figures I typed",
+        lines,
+        "Balances added: " + money(principal),
+        "",
+        "Model on this page",
+        "Each month: interest = balance × APR ÷ 12. Then each open debt gets its minimum. Then leftover extra, including a minimum freed by a paid-off debt, goes to one target.",
+        "Avalanche target: highest APR still open. Snowball target: smallest balance still open.",
+        "Stopped at 600 months. Fees, promo end dates, and daily compounding are not in this model.",
+        "",
+        "Minimums under first-month interest",
+        shortLine,
+        "",
+        "Avalanche order",
+        avalanche ? orderText(avalanche) : "[Waiting on complete lines]",
+        avalanche ? "Months until all cleared: " + monthLabel(avalanche) : "",
+        avalanche ? "Interest in the model: " + money(avalanche.interest) : "",
+        "",
+        "Snowball order",
+        snowball ? orderText(snowball) : "[Waiting on complete lines]",
+        snowball ? "Months until all cleared: " + monthLabel(snowball) : "",
+        snowball ? "Interest in the model: " + money(snowball.interest) : "",
+        "",
+        "Checklist:",
+        listChecks,
+        "",
+        "This packet is not a payoff plan from a lender or a counselor. Send only what the statement asks, and keep the statements these numbers came from.",
+        "",
+        who
+      ].join("\n");
+      document.getElementById("letter").textContent = text;
+    }
+    document.getElementById("example").addEventListener("click", () => {
+      document.getElementById("who").value = "Jordan Hale";
+      document.getElementById("extra").value = "150";
+      debts = [
+        { name: "Card A", balance: "4200", apr: "22.9", min: "120" },
+        { name: "Card B", balance: "1800", apr: "15.4", min: "45" },
+        { name: "Loan C", balance: "9000", apr: "6.5", min: "180" }
+      ];
+      saveDebts();
+      drawDebts();
+      form.dispatchEvent(new Event("input", { bubbles: true }));
+      render();
+    });
+    form.addEventListener("input", render);
+    document.getElementById("copy").addEventListener("click", () => copyText(document.getElementById("letter").textContent, document.getElementById("copy")));
+    render();
+  </script>
+</body>
+</html>
