@@ -4,182 +4,133 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Security deposit timeline and demand letter — Useful.ai</title>
-  <meta name="description" content="Security deposit timeline calculator and demand-letter draft. You enter the state's deadline in days. No invented statutes.">
+  <meta name="description" content="Date a security-deposit demand from your move-out date and the deadline you looked up. Photo log included. No invented statutes.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect fill='%231a1916' width='32' height='32' rx='6'/%3E%3Cpath d='M8 22 V10 h4.2 c3.2 0 5 1.5 5 3.8 0 1.6-.9 2.8-2.3 3.3 1.7.4 2.8 1.7 2.8 3.5 0 2.5-2 3.9-5.4 3.9H8zm3-6.8h1.4c1.3 0 2-.6 2-1.6s-.7-1.5-2-1.5H11v3.1zm0 2.4v3.2h1.7c1.4 0 2.2-.6 2.2-1.6s-.8-1.6-2.2-1.6H11z' fill='%23f4f1ea'/%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,560&family=IBM+Plex+Mono:wght@400;500&family=Public+Sans:wght@400;650&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,500&family=Outfit:wght@400;520;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../assets/site.css">
 </head>
 <body>
   <div class="wrap">
     <header class="top">
-      <a class="brand" href="../index.html">Useful<span>.ai</span></a>
+      <a class="brand" href="../index.html">Useful<i>.ai</i></a>
       <nav><a href="../index.html">All tools</a></nav>
     </header>
-    <article class="tool">
-      <p class="kicker">After move-out</p>
+    <p class="crumb"><a href="../index.html">Tools</a> / Security deposit</p>
+    <section class="hero">
+      <p class="kicker">After the keys are back</p>
       <h1>Security deposit timeline</h1>
-      <p class="lede">Enter the move-out date and the deadline in days from your state's statute or the lease, whichever you confirmed. This page does not look up or invent that number. It dates the demand and keeps a photo log.</p>
-      <div class="panel">
+      <p class="lede">The deadline in days is yours to look up, on the legislature site or in the lease. This page only counts from the move-out date you enter, then writes the demand and keeps the photo log next to it.</p>
+    </section>
+    <div class="layout">
+      <form class="panel" id="form">
         <ol class="steps">
-          <li>Write down the date you returned keys and possession. That is the date this timeline starts from, unless your lease or statute uses a different trigger. Confirm which one applies.</li>
-          <li>Look up the return deadline on the state legislature or attorney-general site, and read the lease. Type the number of days below. Do not guess.</li>
-          <li>Photograph each room, appliance, and any damage the landlord listed. Log them here with the date taken.</li>
-          <li>Send a forwarding address in writing if the statute or lease requires it. This page does not know whether yours does.</li>
-          <li>If the deadline passes with no itemized statement or refund, copy the demand letter and send it the way the statute requires (mail, certified, or otherwise). Confirm that method yourself.</li>
+          <li><span>01</span><div>The start date is the day possession and keys went back, unless the lease or statute uses a different trigger. Confirm which one applies before you rely on the date.</div></li>
+          <li><span>02</span><div>Read the return deadline on an official page. Type that number. Do not guess from a forum.</div></li>
+          <li><span>03</span><div>Send the letter the way that source requires. Certified mail is common. It is not universal. This page will not pretend it is.</div></li>
         </ol>
         <div class="row">
-          <div>
-            <label for="tenant">Your name</label>
-            <input id="tenant" placeholder="Tenant name">
-          </div>
-          <div>
-            <label for="landlord">Landlord or manager</label>
-            <input id="landlord" placeholder="Name">
-          </div>
+          <div class="field"><label for="tenant">Your name</label><input id="tenant" placeholder="Tenant name"></div>
+          <div class="field"><label for="landlord">Landlord or manager</label><input id="landlord" placeholder="Name"></div>
         </div>
-        <label for="lladdr">Landlord mailing address</label>
-        <input id="lladdr" placeholder="Street, city, state, ZIP">
+        <div class="field"><label for="lladdr">Landlord mailing address</label><input id="lladdr" placeholder="Street, city, state, ZIP"></div>
         <div class="row">
-          <div>
-            <label for="unit">Rental address</label>
-            <input id="unit" placeholder="Street, unit, city, state">
-          </div>
-          <div>
-            <label for="forward">Your forwarding address</label>
-            <input id="forward" placeholder="Where the refund should go">
-          </div>
+          <div class="field"><label for="unit">Rental address</label><input id="unit" placeholder="Street, unit, city"></div>
+          <div class="field"><label for="forward">Forwarding address</label><input id="forward" placeholder="Where the refund should go"></div>
         </div>
         <div class="row">
-          <div>
-            <label for="moveout">Move-out date (keys returned)</label>
-            <input id="moveout" type="date">
-          </div>
-          <div>
-            <label for="days">Deadline in days (you look this up)</label>
-            <input id="days" type="number" min="1" step="1" placeholder="From statute or lease">
-          </div>
+          <div class="field"><label for="moveout">Move-out date</label><input id="moveout" type="date"></div>
+          <div class="field"><label for="days">Deadline in days, from the source you checked</label><input id="days" type="number" min="1" step="1" inputmode="numeric" placeholder="Blank until you look it up"></div>
         </div>
         <div class="row">
-          <div>
-            <label for="deposit">Deposit paid</label>
-            <input id="deposit" type="number" min="0" step="0.01" placeholder="0.00">
-          </div>
-          <div>
-            <label for="returned">Amount already returned</label>
-            <input id="returned" type="number" min="0" step="0.01" placeholder="0.00">
-          </div>
+          <div class="field"><label for="deposit">Deposit paid</label><input id="deposit" type="number" min="0" step="0.01" inputmode="decimal" value="0"></div>
+          <div class="field"><label for="returned">Already returned</label><input id="returned" type="number" min="0" step="0.01" inputmode="decimal" value="0"></div>
         </div>
-        <label for="deductions">Itemized deductions the landlord claimed, if any</label>
-        <textarea id="deductions" placeholder="None received yet, or paste their list with amounts."></textarea>
+        <div class="field"><label for="deductions">Deductions they listed, if any</label><textarea id="deductions" placeholder="None received, or paste their list with amounts."></textarea></div>
         <label>Photo log</label>
         <div id="photos"></div>
-        <button class="secondary" id="addphoto" type="button">Add photo row</button>
-        <div class="out" id="timeline"></div>
-        <button id="run" type="button">Build letter and copy packet</button>
-        <pre class="letter" id="letter">Fill the fields, then build the packet.</pre>
-      </div>
-      <p class="note">Not legal, tax, or medical advice. Return deadlines, interest, penalties, and how you must send notice are state law and lease language. Confirm them on an official source before you rely on the date this page calculates.</p>
-    </article>
+        <button class="secondary" id="addphoto" type="button">Add a room</button>
+      </form>
+      <aside class="result" aria-live="polite">
+        <p class="kicker">Deadline</p>
+        <div class="statgrid" id="stats"></div>
+        <div id="flag"></div>
+        <pre class="letter" id="letter"></pre>
+        <div class="actions">
+          <button type="button" id="copy">Copy letter</button>
+          <button type="button" class="secondary" onclick="window.print()">Print</button>
+        </div>
+      </aside>
+    </div>
+    <footer class="site"><span>Not legal advice. Penalties, interest, and how notice must be sent are statute and lease.</span><span><a href="../index.html">All tools</a></span></footer>
   </div>
+  <script src="../assets/site.js"></script>
   <script>
+    const form = document.getElementById("form");
+    persist("useful-deposit", form);
     const photos = document.getElementById("photos");
-    function addPhoto() {
+    function addPhoto(room, note) {
       const row = document.createElement("div");
-      row.className = "row";
-      row.style.marginTop = "8px";
-      row.innerHTML = '<div><input class="room" placeholder="Room or item"></div><div><input class="shot" type="date" aria-label="Date photographed"></div>';
-      const note = document.createElement("input");
-      note.className = "cap";
-      note.placeholder = "What the photo shows";
-      note.style.marginTop = "8px";
-      const wrap = document.createElement("div");
-      wrap.appendChild(row);
-      wrap.appendChild(note);
-      photos.appendChild(wrap);
+      row.className = "photo-row";
+      row.innerHTML = '<input class="room" placeholder="Room" value="' + (room || "") + '"><input class="note" placeholder="What the photo shows" value="' + (note || "") + '"><button type="button" class="secondary">Remove</button>';
+      row.querySelector("button").addEventListener("click", () => { row.remove(); render(); });
+      row.addEventListener("input", render);
+      photos.appendChild(row);
     }
+    document.getElementById("addphoto").addEventListener("click", () => addPhoto());
     addPhoto();
-    document.getElementById("addphoto").addEventListener("click", addPhoto);
-
-    function money(n) {
-      if (!isFinite(n)) return "[amount]";
-      return n.toLocaleString("en-US", { style: "currency", currency: "USD" });
-    }
-    function iso(d) {
-      const y = d.getFullYear();
-      const m = String(d.getMonth() + 1).padStart(2, "0");
-      const day = String(d.getDate()).padStart(2, "0");
-      return y + "-" + m + "-" + day;
-    }
-
-    document.getElementById("run").addEventListener("click", () => {
+    function fmt(d) { return d.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }); }
+    function render() {
+      const deposit = Number(document.getElementById("deposit").value) || 0;
+      const returned = Number(document.getElementById("returned").value) || 0;
+      const due = Math.max(0, deposit - returned);
+      const days = Number(document.getElementById("days").value);
       const moveRaw = document.getElementById("moveout").value;
-      const days = parseInt(document.getElementById("days").value, 10);
-      const deposit = parseFloat(document.getElementById("deposit").value);
-      const returned = parseFloat(document.getElementById("returned").value) || 0;
-      const tenant = document.getElementById("tenant").value || "[tenant]";
-      const landlord = document.getElementById("landlord").value || "[landlord]";
-      const unit = document.getElementById("unit").value || "[rental address]";
-      const forward = document.getElementById("forward").value || "[forwarding address]";
-      const lladdr = document.getElementById("lladdr").value || "[landlord address]";
-      const deductions = document.getElementById("deductions").value || "None received.";
-      let due = "[enter move-out date and deadline days]";
-      let status = "Deadline not calculated. Enter a move-out date and the number of days you confirmed.";
-      if (moveRaw && Number.isFinite(days) && days > 0) {
-        const start = new Date(moveRaw + "T12:00:00");
-        const end = new Date(start.getTime());
-        end.setDate(end.getDate() + days);
-        due = iso(end);
-        const today = new Date();
-        today.setHours(12, 0, 0, 0);
-        const left = Math.round((end - today) / 86400000);
-        status = left > 0
-          ? left + " day(s) left before the date you entered."
-          : left === 0
-            ? "The date you calculated is today."
-            : Math.abs(left) + " day(s) past the date you calculated.";
+      let deadline = null;
+      if (moveRaw && days > 0) {
+        deadline = new Date(moveRaw + "T12:00:00");
+        deadline.setDate(deadline.getDate() + days);
       }
-      const balance = (Number.isFinite(deposit) ? deposit : 0) - returned;
-      const log = [];
-      photos.querySelectorAll(".room").forEach((el, i) => {
-        const room = el.value || "[room]";
-        const shot = photos.querySelectorAll(".shot")[i].value || "[date]";
-        const cap = photos.querySelectorAll(".cap")[i].value || "[caption]";
-        log.push((i + 1) + ". " + room + " — photographed " + shot + " — " + cap);
-      });
-      document.getElementById("timeline").innerHTML =
-        '<div class="stat"><span>Calculated return date</span><b>' + due + '</b></div>' +
-        '<div class="stat"><span>Status</span><b>' + status + '</b></div>' +
-        '<div class="stat"><span>Deposit minus amount returned</span><b>' + (Number.isFinite(deposit) ? money(balance) : "[enter deposit]") + '</b></div>';
+      const today = new Date();
+      document.getElementById("stats").innerHTML =
+        '<div class="stat"><span>Still outstanding</span><b>' + money(due) + '</b></div>' +
+        '<div class="stat emph"><span>Demand date</span><b>' + (deadline ? fmt(deadline) : "Need a date and days") + '</b></div>';
+      const flag = document.getElementById("flag");
+      if (!deadline) flag.innerHTML = '<div class="callout">The date stays blank until you enter both the move-out date and the deadline you confirmed.</div>';
+      else if (today > deadline) flag.innerHTML = '<div class="callout warn">That date is already past. The letter below asks for the refund or an itemized statement. Confirm the sending method before you mail it.</div>';
+      else flag.innerHTML = '<div class="callout ok">Deadline has not passed. Keep the forwarding address and photos ready so the letter can go out the next day if nothing arrives.</div>';
+      const rooms = [...photos.querySelectorAll(".photo-row")].map(row => {
+        const room = row.querySelector(".room").value.trim();
+        const note = row.querySelector(".note").value.trim();
+        return room || note ? "- " + (room || "Room") + ": " + (note || "photo on file") : "";
+      }).filter(Boolean);
       const text = [
-        "SECURITY DEPOSIT DEMAND",
-        "Date of this letter: " + iso(new Date()),
-        "To: " + landlord,
-        lladdr,
-        "From: " + tenant,
-        "Forwarding address: " + forward,
-        "Property: " + unit,
+        fmt(today),
         "",
-        "I returned keys and possession on " + (moveRaw || "[move-out date]") + ".",
-        "The deadline I confirmed (statute or lease) is " + (Number.isFinite(days) ? days + " days" : "[days]") + ", which I calculate as " + due + ".",
-        "Deposit paid: " + (Number.isFinite(deposit) ? money(deposit) : "[amount]") + ".",
-        "Already returned: " + money(returned) + ".",
-        "Balance I am asking you to return or itemize: " + (Number.isFinite(deposit) ? money(balance) : "[amount]") + ".",
+        document.getElementById("landlord").value.trim() || "[Landlord]",
+        document.getElementById("lladdr").value.trim() || "[Landlord address]",
         "",
-        "Deductions you claimed:",
-        deductions,
+        "Re: security deposit, " + (document.getElementById("unit").value.trim() || "[rental address]"),
         "",
-        "Please send the remaining deposit, or a written itemization with receipts as your statute or our lease requires, to the forwarding address above.",
-        "This letter is a request for an accounting. It is not a filing in court.",
+        "I returned possession on " + (moveRaw || "[move-out date]") + ". Please send the remaining deposit of " + money(due) + " to:",
+        document.getElementById("forward").value.trim() || "[forwarding address]",
         "",
-        "PHOTO LOG",
-        log.join("\n") || "[no photos logged]",
+        deadline ? "Using the " + days + "-day period I confirmed from the statute or lease, the return date was " + fmt(deadline) + "." : "I have not entered a confirmed deadline in days, so this letter does not state one.",
         "",
-        status
+        "Deductions you have itemized so far:",
+        document.getElementById("deductions").value.trim() || "None received.",
+        "",
+        "Condition photos:",
+        rooms.length ? rooms.join("\n") : "None logged on this page.",
+        "",
+        document.getElementById("tenant").value.trim() || "[Name]"
       ].join("\n");
       document.getElementById("letter").textContent = text;
-      navigator.clipboard.writeText(text).catch(() => {});
-    });
+    }
+    form.addEventListener("input", render);
+    document.getElementById("copy").addEventListener("click", () => copyText(document.getElementById("letter").textContent, document.getElementById("copy")));
+    render();
   </script>
 </body>
 </html>

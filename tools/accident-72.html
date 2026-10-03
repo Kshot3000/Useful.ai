@@ -4,67 +4,99 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>72 hours after a car accident — Useful.ai</title>
-  <meta name="description" content="A first-72-hours car accident checklist and packet. Scene, report, insurers, medical, repair. No invented state laws.">
+  <meta name="description" content="A first-72-hours car accident checklist that saves on this device and writes a claim packet. No invented state deadlines.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect fill='%231a1916' width='32' height='32' rx='6'/%3E%3Cpath d='M8 22 V10 h4.2 c3.2 0 5 1.5 5 3.8 0 1.6-.9 2.8-2.3 3.3 1.7.4 2.8 1.7 2.8 3.5 0 2.5-2 3.9-5.4 3.9H8zm3-6.8h1.4c1.3 0 2-.6 2-1.6s-.7-1.5-2-1.5H11v3.1zm0 2.4v3.2h1.7c1.4 0 2.2-.6 2.2-1.6s-.8-1.6-2.2-1.6H11z' fill='%23f4f1ea'/%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,560&family=IBM+Plex+Mono:wght@400;500&family=Public+Sans:wght@400;650&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,500&family=Outfit:wght@400;520;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../assets/site.css">
 </head>
 <body>
   <div class="wrap">
     <header class="top">
-      <a class="brand" href="../index.html">Useful<span>.ai</span></a>
+      <a class="brand" href="../index.html">Useful<i>.ai</i></a>
       <nav><a href="../index.html">All tools</a></nav>
     </header>
-    <article class="tool">
-      <p class="kicker">Before the claim gets messy</p>
-      <h1>72 hours after a crash</h1>
-      <p class="lede">A sequence, then a packet you can copy. Deadlines differ by state and policy. This page does not invent them. If anyone is hurt, call emergency services first.</p>
-      <div class="panel">
-        <ol class="steps">
-          <li>Move out of traffic if the cars can move and it is safe. Turn on hazards.</li>
-          <li>Call emergency services if anyone is injured, a car cannot move, or the other driver leaves.</li>
-          <li>Photograph plates, all four corners, the scene, skid marks, and the other driver's license and insurance card.</li>
-          <li>Get the other driver's name, insurer, policy number, and the reporting officer's name and report number.</li>
-          <li>Do not give a recorded statement to the other insurer until you have your own claim open.</li>
-          <li>Tell your insurer. Ask how long you have to report a claim. Write that date down. This page does not know it.</li>
-          <li>See a clinician if you hurt, even if it feels minor. Keep discharge papers.</li>
-          <li>Get one written repair estimate before authorizing tear-down. Keep the rental policy limit in writing.</li>
-        </ol>
+    <p class="crumb"><a href="../index.html">Tools</a> / After a crash</p>
+    <section class="hero">
+      <p class="kicker">Before the recorded statement</p>
+      <h1>The first 72 hours</h1>
+      <p class="lede">A sequence, saved on this device, and a packet of what you have. Reporting deadlines and suit deadlines are policy and state law. The blanks stay blank until you write the date your insurer or the statute actually gave you.</p>
+    </section>
+    <div class="layout">
+      <form class="panel" id="form">
+        <div id="checks"></div>
         <div class="row">
-          <div>
-            <label for="when">Date and time</label>
-            <input id="when" placeholder="2026-10-03 18:40">
-          </div>
-          <div>
-            <label for="where">Where</label>
-            <input id="where" placeholder="Intersection or highway mile">
-          </div>
+          <div class="field"><label for="when">Date and time</label><input id="when" placeholder="2026-10-03, 6:40 p.m."></div>
+          <div class="field"><label for="where">Where</label><input id="where" placeholder="Intersection or mile marker"></div>
         </div>
-        <label for="report">Report number and insurer claim numbers</label>
-        <textarea id="report" placeholder="Police report:&#10;My claim:&#10;Their claim:"></textarea>
-        <button id="run" type="button">Copy packet</button>
-        <pre class="letter" id="letter">Fill the fields, then copy.</pre>
-      </div>
-      <p class="note">Not legal advice. Reporting duties and suit deadlines are state law and policy language. Confirm both with your insurer and, if the damage or injury is serious, a lawyer in that state.</p>
-    </article>
+        <div class="field"><label for="report">Report number, claim numbers, insurer deadline you were given</label><textarea id="report" placeholder="Police report:&#10;My claim:&#10;Their claim:&#10;Report-by date my insurer stated:"></textarea></div>
+      </form>
+      <aside class="result" aria-live="polite">
+        <p class="kicker">Packet</p>
+        <div class="statgrid" id="stats"></div>
+        <div id="flag"></div>
+        <pre class="letter" id="letter"></pre>
+        <div class="actions">
+          <button type="button" id="copy">Copy packet</button>
+          <button type="button" class="secondary" onclick="window.print()">Print</button>
+        </div>
+      </aside>
+    </div>
+    <footer class="site"><span>Not legal advice. If anyone is hurt, call emergency services before this page.</span><span><a href="../index.html">All tools</a></span></footer>
   </div>
+  <script src="../assets/site.js"></script>
   <script>
-    const letter = document.getElementById("letter");
-    document.getElementById("run").addEventListener("click", () => {
-      const text = [
+    const items = [
+      ["Move the cars out of traffic if they can move and it is safe. Hazards on.", "scene"],
+      ["Call emergency services if anyone is hurt, a car cannot move, or a driver leaves.", "ems"],
+      ["Photograph plates, all four corners, the scene, and both insurance cards.", "photos"],
+      ["Write the other driver's name, insurer, and policy number before anyone leaves.", "other"],
+      ["Get the officer's name and the report number.", "officer"],
+      ["Open a claim with your own insurer. Write down the report-by date they give you.", "claim"],
+      ["Do not give a recorded statement to the other insurer yet.", "statement"],
+      ["See a clinician if anything hurts. Keep the discharge papers.", "medical"],
+      ["Get one written repair estimate before authorizing tear-down.", "estimate"],
+      ["Get the rental limit in writing before you take a car.", "rental"]
+    ];
+    const checks = document.getElementById("checks");
+    const saved = JSON.parse(localStorage.getItem("useful-accident-checks") || "{}");
+    items.forEach(([label, id], i) => {
+      const row = document.createElement("label");
+      row.className = "check";
+      row.innerHTML = '<input type="checkbox" id="' + id + '"' + (saved[id] ? " checked" : "") + '><span><strong>' + String(i + 1).padStart(2, "0") + '</strong> ' + label + '</span>';
+      checks.appendChild(row);
+    });
+    persist("useful-accident", document.getElementById("form"));
+    function render() {
+      const done = items.filter(([, id]) => document.getElementById(id).checked);
+      const open = items.filter(([, id]) => !document.getElementById(id).checked);
+      const state = {};
+      items.forEach(([, id]) => { state[id] = document.getElementById(id).checked; });
+      localStorage.setItem("useful-accident-checks", JSON.stringify(state));
+      document.getElementById("stats").innerHTML =
+        '<div class="stat emph"><span>Done</span><b>' + done.length + ' / ' + items.length + '</b></div>';
+      document.getElementById("flag").innerHTML = open.length
+        ? '<div class="callout warn">Still open: ' + open.map(([, id]) => id).join(", ") + '.</div>'
+        : '<div class="callout ok">Checklist complete. The packet is what you hand to yourself tomorrow morning.</div>';
+      document.getElementById("letter").textContent = [
         "ACCIDENT PACKET",
-        "When: " + (document.getElementById("when").value || "[date time]"),
+        "When: " + (document.getElementById("when").value || "[date and time]"),
         "Where: " + (document.getElementById("where").value || "[place]"),
         "",
-        document.getElementById("report").value || "[report and claim numbers]",
+        document.getElementById("report").value.trim() || "[report and claim numbers]",
         "",
-        "Still to collect: photos, other driver license and insurance, officer name, my insurer report deadline, medical discharge, one written repair estimate, rental limit in writing.",
-        "I have not given a recorded statement to the other insurer."
+        "Done:",
+        done.length ? done.map(([label]) => "- " + label).join("\n") : "- nothing checked",
+        "",
+        "Still open:",
+        open.length ? open.map(([label]) => "- " + label).join("\n") : "- none"
       ].join("\n");
-      letter.textContent = text;
-      navigator.clipboard.writeText(text).catch(() => {});
-    });
+    }
+    document.getElementById("form").addEventListener("input", render);
+    document.getElementById("form").addEventListener("change", render);
+    document.getElementById("copy").addEventListener("click", () => copyText(document.getElementById("letter").textContent, document.getElementById("copy")));
+    render();
   </script>
 </body>
 </html>
