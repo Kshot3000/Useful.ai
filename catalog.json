@@ -44,6 +44,13 @@
       "status": "live",
       "path": "tools/small-claims.html",
       "search": ["small claims worksheet", "small claims filing fee", "small claims evidence list"]
+    },
+    {
+      "slug": "subscription-audit",
+      "title": "Subscription audit",
+      "status": "live",
+      "path": "tools/subscription-audit.html",
+      "search": ["subscription audit", "cancel subscription script", "annualized subscription cost"]
     }
   ]
 }
