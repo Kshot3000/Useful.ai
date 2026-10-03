@@ -37,6 +37,13 @@
       "status": "live",
       "path": "tools/unemployment-appeal.html",
       "search": ["unemployment appeal packet", "unemployment hearing checklist", "appeal unemployment determination"]
+    },
+    {
+      "slug": "small-claims",
+      "title": "Small-claims worksheet",
+      "status": "live",
+      "path": "tools/small-claims.html",
+      "search": ["small claims worksheet", "small claims filing fee", "small claims evidence list"]
     }
   ]
 }

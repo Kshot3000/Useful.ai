@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Small-claims worksheet — Useful.ai</title>
+  <meta name="description" content="Small-claims claim math, a filing-fee field you fill, and an evidence index. No court addresses, fee schedules, or dollar limits invented on this page.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect fill='%231a1916' width='32' height='32' rx='6'/%3E%3Cpath d='M8 22 V10 h4.2 c3.2 0 5 1.5 5 3.8 0 1.6-.9 2.8-2.3 3.3 1.7.4 2.8 1.7 2.8 3.5 0 2.5-2 3.9-5.4 3.9H8zm3-6.8h1.4c1.3 0 2-.6 2-1.6s-.7-1.5-2-1.5H11v3.1zm0 2.4v3.2h1.7c1.4 0 2.2-.6 2.2-1.6s-.8-1.6-2.2-1.6H11z' fill='%23f4f1ea'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,500&family=Outfit:wght@400;520;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/site.css">
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <a class="brand" href="../index.html">Useful<i>.ai</i></a>
+      <nav><a href="../index.html">All tools</a></nav>
+    </header>
+    <p class="crumb"><a href="../index.html">Tools</a> / Small claims</p>
+    <section class="hero">
+      <p class="kicker">Before the filing window</p>
+      <h1>Small-claims worksheet</h1>
+      <p class="lede">Add the amounts you are asking for, subtract what you already received, and index the exhibits. The filing fee and the dollar limit stay blank until you type the figures from the court that will hear it. This page does not list courts or addresses.</p>
+    </section>
+    <div class="layout">
+      <form class="panel" id="form">
+        <ol class="steps">
+          <li><span>01</span><div>Name the court the way its own site does. Do not guess the building. Filing place, fee, and limit are on that court's page or clerk form.</div></li>
+          <li><span>02</span><div>Type the principal and any other out-of-pocket you can point to. Interest is only what you enter, or simple interest on a rate you type. This is not a statutory rate.</div></li>
+          <li><span>03</span><div>Index each exhibit before you file. Whether the fee can be added to the judgment is a box you check only after the form says so.</div></li>
+        </ol>
+        <div class="row">
+          <div class="field"><label for="plaintiff">Your name</label><input id="plaintiff" placeholder="Name on the claim"></div>
+          <div class="field"><label for="defendant">Other party</label><input id="defendant" placeholder="Person or business"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label for="court">Court name, from its site</label><input id="court" placeholder="Name only — no address on this page"></div>
+          <div class="field"><label for="casenum">Case number, if already filed</label><input id="casenum" placeholder="Blank if not filed"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label for="incident">Date of the deal or loss</label><input id="incident" type="date"></div>
+          <div class="field"><label for="limit">Dollar limit you confirmed</label><input id="limit" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Blank until you check"></div>
+        </div>
+        <div class="field"><label for="story">What you are asking the court to order, in your words</label><textarea id="story" placeholder="Unpaid invoice, damaged item, deposit not returned. Facts only."></textarea></div>
+        <div class="row">
+          <div class="field"><label for="principal">Principal you are claiming</label><input id="principal" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0.00"></div>
+          <div class="field"><label for="other">Other out-of-pocket you can document</label><input id="other" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0.00"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label for="interestmode">Interest</label>
+            <select id="interestmode">
+              <option value="typed">I will type the interest amount</option>
+              <option value="simple">Simple interest from a rate I enter</option>
+            </select>
+          </div>
+          <div class="field"><label for="credits">Already received or credited</label><input id="credits" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0.00"></div>
+        </div>
+        <div class="row" id="typed-interest">
+          <div class="field"><label for="interestamt">Interest amount you are claiming</label><input id="interestamt" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0.00"></div>
+          <div class="field"><label for="interestnote">Where that interest figure came from</label><input id="interestnote" placeholder="Invoice term, or leave blank"></div>
+        </div>
+        <div class="row" id="simple-interest" hidden>
+          <div class="field"><label for="rate">Annual rate you are using, percent</label><input id="rate" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Not a statutory rate"></div>
+          <div class="field"><label for="intdays">Days you are counting</label><input id="intdays" type="number" min="0" step="1" inputmode="numeric" placeholder="Days"></div>
+        </div>
+        <p class="note" id="interest-note">Simple interest, if you choose it, is principal × rate × days ÷ 365. That day count is a convention on this page, not a court rule.</p>
+        <div class="row">
+          <div class="field"><label for="fee">Filing fee, from the fee schedule you looked up</label><input id="fee" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Blank until you look it up"></div>
+          <div class="field"><label for="service">Service or other court cost you looked up</label><input id="service" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Blank until you look it up"></div>
+        </div>
+        <label class="check"><input id="includecosts" type="checkbox"> <span>The form I am using lets me add the filing fee and service cost to the amount asked. Leave this off if you have not read that form.</span></label>
+        <label>Evidence index</label>
+        <div id="checks"></div>
+        <div id="exhibits"></div>
+        <div class="actions">
+          <button class="ghost" id="add-exhibit" type="button">Add exhibit</button>
+          <button class="secondary" id="example" type="button">Load example</button>
+        </div>
+        <p class="note">Example fills a sample dispute only. The fee, the service cost, and the dollar limit stay blank so a sample does not look like a court schedule.</p>
+      </form>
+      <aside class="result" aria-live="polite">
+        <p class="kicker">Claim math</p>
+        <div class="statgrid" id="stats"></div>
+        <div id="flag"></div>
+        <pre class="letter" id="letter"></pre>
+        <div class="actions">
+          <button type="button" id="copy">Copy packet</button>
+          <button type="button" class="secondary" onclick="window.print()">Print</button>
+        </div>
+      </aside>
+    </div>
+    <footer class="site"><span>Not legal, tax, or medical advice. Filing fees, dollar limits, where to file, and whether costs may be added are on the court form you are using. Dated 3 October 2026. No court address is stated here.</span><span><a href="../index.html">All tools</a></span></footer>
+  </div>
+  <script src="../assets/site.js"></script>
+  <script>
+    const form = document.getElementById("form");
+    persist("useful-small-claims", form);
+    const ITEMS = [
+      "Contract, invoice, or written agreement",
+      "Proof you paid, or proof they did not",
+      "Photos or the damaged item, dated if you can",
+      "Messages about the amount or the repair",
+      "Estimate or receipt for the out-of-pocket line",
+      "Witness name and phone, if someone else saw it"
+    ];
+    const checks = document.getElementById("checks");
+    const savedChecks = JSON.parse(localStorage.getItem("useful-small-claims-checks") || "[]");
+    ITEMS.forEach((label, i) => {
+      const row = document.createElement("label");
+      row.className = "check";
+      row.innerHTML = '<input type="checkbox" data-i="' + i + '"> <span>' + label + '</span>';
+      const box = row.querySelector("input");
+      box.checked = !!savedChecks[i];
+      box.addEventListener("change", () => { saveChecks(); render(); });
+      checks.appendChild(row);
+    });
+    function saveChecks() {
+      localStorage.setItem("useful-small-claims-checks", JSON.stringify([...checks.querySelectorAll("input")].map(el => el.checked)));
+    }
+    const exhibitsEl = document.getElementById("exhibits");
+    let exhibits = JSON.parse(localStorage.getItem("useful-small-claims-exhibits") || "[]");
+    function saveExhibits() {
+      localStorage.setItem("useful-small-claims-exhibits", JSON.stringify(exhibits));
+    }
+    function drawExhibits() {
+      exhibitsEl.innerHTML = "";
+      exhibits.forEach((ex, i) => {
+        const row = document.createElement("div");
+        row.className = "photo-row";
+        row.innerHTML =
+          '<input data-k="label" value="' + escapeAttr(ex.label) + '" placeholder="Ex. A">' +
+          '<input data-k="what" value="' + escapeAttr(ex.what) + '" placeholder="What it shows">' +
+          '<button type="button" class="secondary" data-remove="' + i + '">Remove</button>';
+        exhibitsEl.appendChild(row);
+      });
+    }
+    function escapeAttr(s) {
+      var amp = String.fromCharCode(38);
+      return String(s || "").replace(/&/g, amp + "amp;").replace(/"/g, amp + "quot;").replace(/</g, amp + "lt;");
+    }
+    drawExhibits();
+    exhibitsEl.addEventListener("input", (e) => {
+      const row = e.target.closest(".photo-row");
+      if (!row) return;
+      const i = [...exhibitsEl.children].indexOf(row);
+      exhibits[i][e.target.dataset.k] = e.target.value;
+      saveExhibits();
+      render();
+    });
+    exhibitsEl.addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-remove]");
+      if (!btn) return;
+      exhibits.splice(Number(btn.dataset.remove), 1);
+      saveExhibits();
+      drawExhibits();
+      render();
+    });
+    document.getElementById("add-exhibit").addEventListener("click", () => {
+      const n = exhibits.length + 1;
+      exhibits.push({ label: "Ex. " + String.fromCharCode(64 + Math.min(n, 26)), what: "" });
+      saveExhibits();
+      drawExhibits();
+      render();
+    });
+    function num(id) {
+      const v = document.getElementById(id).value;
+      if (v === "") return null;
+      const n = Number(v);
+      return Number.isFinite(n) ? n : null;
+    }
+    function fmt(d) { return d.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }); }
+    function syncInterest() {
+      const simple = document.getElementById("interestmode").value === "simple";
+      document.getElementById("typed-interest").hidden = simple;
+      document.getElementById("simple-interest").hidden = !simple;
+    }
+    function render() {
+      syncInterest();
+      const principal = num("principal") || 0;
+      const other = num("other") || 0;
+      const credits = num("credits") || 0;
+      const fee = num("fee");
+      const service = num("service");
+      const limit = num("limit");
+      let interest = 0;
+      let interestLine = "Interest not entered.";
+      if (document.getElementById("interestmode").value === "simple") {
+        const rate = num("rate");
+        const days = num("intdays");
+        if (rate != null && days != null) {
+          interest = principal * (rate / 100) * (days / 365);
+          interestLine = "Simple interest on the rate you typed: " + money(principal) + " × " + rate + "% × " + days + " ÷ 365 = " + money(interest) + ". Not a statutory rate.";
+        } else interestLine = "Simple interest needs a rate and a day count you enter.";
+      } else {
+        interest = num("interestamt") || 0;
+        const note = document.getElementById("interestnote").value.trim();
+        interestLine = "Interest typed by you: " + money(interest) + (note ? " (" + note + ")" : "") + ".";
+      }
+      const subtotal = principal + other + interest - credits;
+      const include = document.getElementById("includecosts").checked;
+      const costs = (fee || 0) + (service || 0);
+      const asked = subtotal + (include ? costs : 0);
+      const done = [...checks.querySelectorAll("input")].filter(el => el.checked).length;
+      const exhibitCount = exhibits.filter(ex => (ex.what || "").trim()).length;
+      document.getElementById("stats").innerHTML =
+        '<div class="stat"><span>Principal</span><b>' + money(principal) + '</b></div>' +
+        '<div class="stat"><span>Other out-of-pocket</span><b>' + money(other) + '</b></div>' +
+        '<div class="stat"><span>Interest</span><b>' + money(interest) + '</b></div>' +
+        '<div class="stat"><span>Already received</span><b>− ' + money(credits) + '</b></div>' +
+        '<div class="stat"><span>Filing fee you entered</span><b>' + (fee == null ? "Not entered" : money(fee)) + '</b></div>' +
+        '<div class="stat"><span>Service cost you entered</span><b>' + (service == null ? "Not entered" : money(service)) + '</b></div>' +
+        '<div class="stat emph"><span>Amount on the form</span><b>' + money(asked) + '</b></div>' +
+        '<div class="stat"><span>Evidence</span><b>' + done + " / " + ITEMS.length + " · " + exhibitCount + " exhibits</b></div>';
+      const flag = document.getElementById("flag");
+      if (fee == null) flag.innerHTML = '<div class="callout">Filing fee stays blank until you type the figure from the court fee schedule. This page does not publish one.</div>';
+      else if (limit != null && asked > limit) flag.innerHTML = '<div class="callout warn">The amount on the form is over the dollar limit you entered. Confirm that limit on the court page before you rely on this worksheet.</div>';
+      else if (!include) flag.innerHTML = '<div class="callout">Fee and service cost are listed, not added. Check the box only if the form you are using says those costs can be part of the claim.</div>';
+      else flag.innerHTML = '<div class="callout ok">Fee and service cost are included because you checked that the form allows it. The math uses only numbers you typed.</div>';
+      const list = ITEMS.map((label, i) => (checks.querySelectorAll("input")[i].checked ? "[x] " : "[ ] ") + label).join("\n");
+      const exhibitLines = exhibits.length
+        ? exhibits.map(ex => (ex.label || "Exhibit") + " — " + (ex.what.trim() || "[what it shows]")).join("\n")
+        : "[No exhibits indexed yet]";
+      const today = new Date();
+      const text = [
+        fmt(today),
+        "",
+        "Small-claims worksheet",
+        "Court name (no address on this packet): " + (document.getElementById("court").value.trim() || "[court name from its site]"),
+        "Case number: " + (document.getElementById("casenum").value.trim() || "Not filed on this worksheet"),
+        "Claimant: " + (document.getElementById("plaintiff").value.trim() || "[Name]"),
+        "Other party: " + (document.getElementById("defendant").value.trim() || "[Other party]"),
+        "Date of the deal or loss: " + (document.getElementById("incident").value || "[date]"),
+        "",
+        "What I am asking the court to order:",
+        document.getElementById("story").value.trim() || "[Facts. Amounts are in the math below.]",
+        "",
+        "Claim math",
+        "Principal: " + money(principal),
+        "Other out-of-pocket: " + money(other),
+        interestLine,
+        "Already received or credited: " + money(credits),
+        "Subtotal before court costs: " + money(subtotal),
+        "Filing fee from the schedule I looked up: " + (fee == null ? "not entered" : money(fee)),
+        "Service or other court cost I looked up: " + (service == null ? "not entered" : money(service)),
+        include ? "I checked that the form I am using lets me add those costs. Amount on the form: " + money(asked) + "." : "Costs are not added. Amount on the form, costs aside: " + money(asked) + ".",
+        limit == null ? "Dollar limit: not entered. This packet does not state a small-claims cap." : "Dollar limit I confirmed: " + money(limit) + (asked > limit ? " — amount on the form is over that figure." : " — amount on the form is within that figure."),
+        "",
+        "Evidence checklist:",
+        list,
+        "",
+        "Evidence index:",
+        exhibitLines,
+        "",
+        "This worksheet is not a filing and not a fee schedule. File only where and how the court you named requires.",
+        "",
+        document.getElementById("plaintiff").value.trim() || "[Name]"
+      ].join("\n");
+      document.getElementById("letter").textContent = text;
+    }
+    document.getElementById("example").addEventListener("click", () => {
+      document.getElementById("plaintiff").value = "Jordan Hale";
+      document.getElementById("defendant").value = "North Warehouse Co.";
+      document.getElementById("court").value = "Court named on the clerk page I checked";
+      document.getElementById("casenum").value = "";
+      document.getElementById("story").value = "Invoice 184 for storage in March was not paid. I am asking for the unpaid invoice minus the one payment they sent.";
+      document.getElementById("principal").value = "840";
+      document.getElementById("other").value = "0";
+      document.getElementById("interestmode").value = "typed";
+      document.getElementById("interestamt").value = "0";
+      document.getElementById("interestnote").value = "";
+      document.getElementById("credits").value = "100";
+      document.getElementById("fee").value = "";
+      document.getElementById("service").value = "";
+      document.getElementById("limit").value = "";
+      document.getElementById("includecosts").checked = false;
+      exhibits = [{ label: "Ex. A", what: "Invoice 184" }, { label: "Ex. B", what: "Payment of $100 on 2 April" }];
+      saveExhibits();
+      drawExhibits();
+      form.dispatchEvent(new Event("input", { bubbles: true }));
+      render();
+    });
+    form.addEventListener("input", render);
+    document.getElementById("copy").addEventListener("click", () => copyText(document.getElementById("letter").textContent, document.getElementById("copy")));
+    render();
+  </script>
+</body>
+</html>
