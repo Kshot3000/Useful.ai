@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Contractor bid comparison — Useful.ai</title>
+  <meta name="description" content="Normalize three contractor bids to the same scope and flag missing line items. Totals are your numbers. No invented prices, license rules, or deadlines.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect fill='%231a1916' width='32' height='32' rx='6'/%3E%3Cpath d='M8 22 V10 h4.2 c3.2 0 5 1.5 5 3.8 0 1.6-.9 2.8-2.3 3.3 1.7.4 2.8 1.7 2.8 3.5 0 2.5-2 3.9-5.4 3.9H8zm3-6.8h1.4c1.3 0 2-.6 2-1.6s-.7-1.5-2-1.5H11v3.1zm0 2.4v3.2h1.7c1.4 0 2.2-.6 2.2-1.6s-.8-1.6-2.2-1.6H11z' fill='%23f4f1ea'/%3E%3C/svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,500&family=Outfit:wght@400;520;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/site.css">
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <a class="brand" href="../index.html">Useful<i>.ai</i></a>
+      <nav><a href="../index.html">All tools</a></nav>
+    </header>
+    <p class="crumb"><a href="../index.html">Tools</a> / Contractor bid comparison</p>
+    <section class="hero">
+      <p class="kicker">Same scope, three bids</p>
+      <h1>Contractor bid comparison</h1>
+      <p class="lede">Put the work you actually want priced on one list, then type what each bid charged for that line. A blank stays a missing item. This page does not look up license status, typical prices, or how long a quote is good for.</p>
+    </section>
+    <div class="layout">
+      <form class="panel" id="form">
+        <ol class="steps">
+          <li><span>01</span><div>Name the job and the three contractors. A bid that is not in hand stays blank.</div></li>
+          <li><span>02</span><div>Write the scope once. Every bid is scored against that list, not against its own headings.</div></li>
+          <li><span>03</span><div>Enter the price each bid gave for that line. Blank means missing. Extras sit outside the shared scope.</div></li>
+        </ol>
+        <div class="row">
+          <div class="field"><label for="project">Project</label><input id="project" placeholder="Kitchen, 12 Oak"></div>
+          <div class="field"><label for="address">Site, if you want it on the packet</label><input id="address" placeholder="Optional"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label for="bidA">Bid A name</label><input id="bidA" placeholder="Contractor A"></div>
+          <div class="field"><label for="bidB">Bid B name</label><input id="bidB" placeholder="Contractor B"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label for="bidC">Bid C name</label><input id="bidC" placeholder="Contractor C"></div>
+          <div class="field"><label for="quoteDays">Days you were told a quote stays open</label><input id="quoteDays" type="number" min="0" step="1" inputmode="numeric" placeholder="Blank — not looked up here"></div>
+        </div>
+        <p class="note">Quote windows, deposit rules, and license requirements are on the proposal or your state board. This page will not fill them in.</p>
+        <label>Scope every bid should price</label>
+        <div id="scope"></div>
+        <div class="actions">
+          <button class="ghost" id="add-scope" type="button">Add scope line</button>
+        </div>
+        <label>Prices on that scope</label>
+        <p class="note">Leave a cell blank if that bid did not price the line. Do not guess a number to make the columns match.</p>
+        <div id="prices"></div>
+        <label>Extras outside the shared scope</label>
+        <p class="note">A line that only one bid named. It counts in that bid’s line sum, and it is flagged as not on the shared list.</p>
+        <div id="extras"></div>
+        <div class="actions">
+          <button class="ghost" id="add-extra" type="button">Add extra</button>
+          <button class="secondary" id="example" type="button">Load example</button>
+        </div>
+        <div class="row">
+          <div class="field"><label for="statedA">Bid A stated total</label><input id="statedA" type="number" min="0" step="0.01" inputmode="decimal" placeholder="From their cover page"></div>
+          <div class="field"><label for="statedB">Bid B stated total</label><input id="statedB" type="number" min="0" step="0.01" inputmode="decimal" placeholder="From their cover page"></div>
+        </div>
+        <div class="field"><label for="statedC">Bid C stated total</label><input id="statedC" type="number" min="0" step="0.01" inputmode="decimal" placeholder="From their cover page"></div>
+        <label>Before you treat a low number as the same job</label>
+        <div id="checks"></div>
+      </form>
+      <aside class="result" aria-live="polite">
+        <p class="kicker">Normalized</p>
+        <div class="statgrid" id="stats"></div>
+        <div id="flagbox"></div>
+        <pre class="letter" id="letter"></pre>
+        <div class="actions">
+          <button type="button" id="copy">Copy packet</button>
+          <button type="button" class="secondary" onclick="window.print()">Print</button>
+        </div>
+      </aside>
+    </div>
+    <footer class="site"><span>Not legal, tax, or medical advice. Not a contractor recommendation. Prices, allowances, and quote windows are what you typed. Dated 3 October 2026.</span><span><a href="../index.html">All tools</a></span></footer>
+  </div>
+  <script src="../assets/site.js"></script>
+  <script>
+    const form = document.getElementById("form");
+    persist("useful-contractor-bid", form);
+    const BIDS = ["A", "B", "C"];
+    const ITEMS = [
+      "Each price is the figure on that bid, not a guess to fill a blank",
+      "I treated an allowance as an allowance, not as a finished price",
+      "Missing lines are still open, not assumed to be included",
+      "I have not used this page as a license check or a legal review"
+    ];
+    const checks = document.getElementById("checks");
+    const savedChecks = JSON.parse(localStorage.getItem("useful-contractor-bid-checks") || "[]");
+    ITEMS.forEach((label, i) => {
+      const row = document.createElement("label");
+      row.className = "check";
+      row.innerHTML = '<input type="checkbox" data-i="' + i + '"> <span>' + label + '</span>';
+      const box = row.querySelector("input");
+      box.checked = !!savedChecks[i];
+      box.addEventListener("change", () => { saveChecks(); render(); });
+      checks.appendChild(row);
+    });
+    function saveChecks() {
+      localStorage.setItem("useful-contractor-bid-checks", JSON.stringify([...checks.querySelectorAll("input")].map(el => el.checked)));
+    }
+    let scope = JSON.parse(localStorage.getItem("useful-contractor-bid-scope") || "[]");
+    let extras = JSON.parse(localStorage.getItem("useful-contractor-bid-extras") || "[]");
+    function saveScope() { localStorage.setItem("useful-contractor-bid-scope", JSON.stringify(scope)); }
+    function saveExtras() { localStorage.setItem("useful-contractor-bid-extras", JSON.stringify(extras)); }
+    function escapeAttr(s) {
+      var amp = String.fromCharCode(38);
+      return String(s || "").replace(/&/g, amp + "amp;").replace(/"/g, amp + "quot;").replace(/</g, amp + "lt;");
+    }
+    function bidName(letter) {
+      return document.getElementById("bid" + letter).value.trim() || ("Bid " + letter);
+    }
+    const scopeEl = document.getElementById("scope");
+    const pricesEl = document.getElementById("prices");
+    const extrasEl = document.getElementById("extras");
+    function drawScope() {
+      scopeEl.innerHTML = "";
+      scope.forEach((item) => {
+        const row = document.createElement("div");
+        row.className = "photo-row";
+        row.innerHTML = '<input data-k="name" value="' + escapeAttr(item.name) + '" placeholder="Scope line, e.g. haul-away">';
+        const kill = document.createElement("button");
+        kill.type = "button";
+        kill.className = "secondary";
+        kill.textContent = "Remove";
+        kill.dataset.removeScope = "1";
+        row.appendChild(document.createElement("span"));
+        row.appendChild(kill);
+        scopeEl.appendChild(row);
+      });
+      drawPrices();
+    }
+    function drawPrices() {
+      pricesEl.innerHTML = "";
+      if (!scope.length) {
+        pricesEl.innerHTML = '<p class="note">Add a scope line before the price grid has anywhere to go.</p>';
+        return;
+      }
+      scope.forEach((item) => {
+        const block = document.createElement("div");
+        block.className = "field";
+        const title = document.createElement("label");
+        title.textContent = item.name.trim() || "Untitled scope line";
+        block.appendChild(title);
+        const row = document.createElement("div");
+        row.className = "row";
+        BIDS.slice(0, 2).forEach((letter) => {
+          const wrap = document.createElement("div");
+          wrap.className = "field";
+          wrap.innerHTML = '<label>' + escapeAttr(bidName(letter)) + '</label><input data-price="' + item.id + '" data-bid="' + letter + '" inputmode="decimal" placeholder="Blank if missing" value="' + escapeAttr(item.prices[letter] || "") + '">';
+          row.appendChild(wrap);
+        });
+        block.appendChild(row);
+        const cwrap = document.createElement("div");
+        cwrap.className = "field";
+        cwrap.innerHTML = '<label>' + escapeAttr(bidName("C")) + '</label><input data-price="' + item.id + '" data-bid="C" inputmode="decimal" placeholder="Blank if missing" value="' + escapeAttr(item.prices.C || "") + '">';
+        block.appendChild(cwrap);
+        pricesEl.appendChild(block);
+      });
+    }
+    function drawExtras() {
+      extrasEl.innerHTML = "";
+      extras.forEach((item) => {
+        const row = document.createElement("div");
+        row.className = "photo-row";
+        const opts = BIDS.map((letter) => '<option value="' + letter + '"' + (item.bid === letter ? " selected" : "") + ">Bid " + letter + "</option>").join("");
+        row.innerHTML =
+          '<input data-k="name" value="' + escapeAttr(item.name) + '" placeholder="Extra line">' +
+          '<input data-k="amount" value="' + escapeAttr(item.amount) + '" inputmode="decimal" placeholder="Amount">' +
+          '<select data-k="bid">' + opts + '</select>';
+        const kill = document.createElement("button");
+        kill.type = "button";
+        kill.className = "secondary";
+        kill.textContent = "Remove";
+        kill.dataset.removeExtra = "1";
+        row.appendChild(kill);
+        extrasEl.appendChild(row);
+      });
+    }
+    drawScope();
+    drawExtras();
+    scopeEl.addEventListener("input", (e) => {
+      const row = e.target.closest(".photo-row");
+      if (!row) return;
+      const i = [...scopeEl.children].indexOf(row);
+      scope[i].name = e.target.value;
+      saveScope();
+      drawPrices();
+      render();
+    });
+    scopeEl.addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-remove-scope]");
+      if (!btn) return;
+      scope.splice([...scopeEl.children].indexOf(btn.closest(".photo-row")), 1);
+      saveScope();
+      drawScope();
+      render();
+    });
+    pricesEl.addEventListener("input", (e) => {
+      const id = e.target.dataset.price;
+      const letter = e.target.dataset.bid;
+      if (!id || !letter) return;
+      const item = scope.find((s) => s.id === id);
+      if (!item) return;
+      item.prices[letter] = e.target.value;
+      saveScope();
+      render();
+    });
+    extrasEl.addEventListener("input", onExtra);
+    extrasEl.addEventListener("change", onExtra);
+    function onExtra(e) {
+      const row = e.target.closest(".photo-row");
+      if (!row) return;
+      const i = [...extrasEl.children].indexOf(row);
+      extras[i][e.target.dataset.k] = e.target.value;
+      saveExtras();
+      render();
+    }
+    extrasEl.addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-remove-extra]");
+      if (!btn) return;
+      extras.splice([...extrasEl.children].indexOf(btn.closest(".photo-row")), 1);
+      saveExtras();
+      drawExtras();
+      render();
+    });
+    document.getElementById("add-scope").addEventListener("click", () => {
+      scope.push({ id: "s" + Date.now() + Math.floor(Math.random() * 1000), name: "", prices: { A: "", B: "", C: "" } });
+      saveScope();
+      drawScope();
+      render();
+    });
+    document.getElementById("add-extra").addEventListener("click", () => {
+      extras.push({ name: "", amount: "", bid: "A" });
+      saveExtras();
+      drawExtras();
+      render();
+    });
+    function num(v) {
+      if (v == null || String(v).trim() === "") return null;
+      const n = Number(String(v).replace(/,/g, ""));
+      return Number.isFinite(n) ? n : null;
+    }
+    function fieldNum(id) { return num(document.getElementById(id).value); }
+    function fmt(d) { return d.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }); }
+    function render() {
+      const names = { A: bidName("A"), B: bidName("B"), C: bidName("C") };
+      const stated = { A: fieldNum("statedA"), B: fieldNum("statedB"), C: fieldNum("statedC") };
+      const rows = scope.filter((s) => s.name.trim() || BIDS.some((letter) => num(s.prices[letter]) != null));
+      const missing = { A: [], B: [], C: [] };
+      const scopeSum = { A: 0, B: 0, C: 0 };
+      const pricedCount = { A: 0, B: 0, C: 0 };
+      rows.forEach((s) => {
+        BIDS.forEach((letter) => {
+          const n = num(s.prices[letter]);
+          if (n == null) missing[letter].push(s.name.trim() || "Untitled scope line");
+          else { scopeSum[letter] += n; pricedCount[letter] += 1; }
+        });
+      });
+      const extraSum = { A: 0, B: 0, C: 0 };
+      const extraLines = { A: [], B: [], C: [] };
+      extras.forEach((x) => {
+        const n = num(x.amount);
+        const letter = BIDS.indexOf(x.bid) >= 0 ? x.bid : "A";
+        if (n == null && !x.name.trim()) return;
+        extraLines[letter].push((x.name.trim() || "Untitled extra") + (n == null ? " (no amount)" : ": " + money(n)));
+        if (n != null) extraSum[letter] += n;
+      });
+      const lineSum = { A: scopeSum.A + extraSum.A, B: scopeSum.B + extraSum.B, C: scopeSum.C + extraSum.C };
+      const complete = BIDS.filter((letter) => rows.length && missing[letter].length === 0);
+      const lowestComplete = complete.slice().sort((a, b) => lineSum[a] - lineSum[b])[0];
+      const missingTotal = BIDS.reduce((s, letter) => s + missing[letter].length, 0);
+      document.getElementById("stats").innerHTML =
+        '<div class="stat"><span>Scope lines</span><b>' + rows.length + '</b></div>' +
+        '<div class="stat"><span>Missing cells</span><b>' + missingTotal + '</b></div>' +
+        '<div class="stat"><span>Bids with every scope line priced</span><b>' + (complete.length ? complete.map((l) => names[l]).join(", ") : "None yet") + '</b></div>' +
+        '<div class="stat emph"><span>Lowest complete line sum</span><b>' + (lowestComplete ? money(lineSum[lowestComplete]) : "—") + '</b></div>';
+      const flagbox = document.getElementById("flagbox");
+      if (!rows.length) flagbox.innerHTML = '<div class="callout">Add the scope you want all three bids to price. A stated total alone is not a comparison.</div>';
+      else if (missingTotal) flagbox.innerHTML = '<div class="callout warn">' + missingTotal + ' scope cell' + (missingTotal === 1 ? "" : "s") + ' blank. Those bids are not normalized until the missing lines are priced or removed from the shared scope.</div>';
+      else flagbox.innerHTML = '<div class="callout ok">Every shared line has a price on all three bids. Extras, if any, are still outside that scope.</div>';
+      const matrix = rows.length ? rows.map((s) => {
+        const cells = BIDS.map((letter) => {
+          const n = num(s.prices[letter]);
+          return letter + " " + (n == null ? "MISSING" : money(n));
+        }).join(" · ");
+        const priced = BIDS.map((letter) => num(s.prices[letter])).filter((n) => n != null);
+        const spread = priced.length > 1 ? (Math.max.apply(null, priced) - Math.min.apply(null, priced)) : null;
+        return (s.name.trim() || "Untitled scope line") + ": " + cells + (spread == null ? "" : " · spread " + money(spread));
+      }).join("\n") : "[No scope lines yet]";
+      const gaps = BIDS.map((letter) => {
+        const statedBit = stated[letter] == null ? "stated total not entered" : "stated " + money(stated[letter]);
+        const gap = stated[letter] == null ? "" : " · stated minus line sum " + money(stated[letter] - lineSum[letter]);
+        return names[letter] + ": scope " + money(scopeSum[letter]) + " + extras " + money(extraSum[letter]) + " = line sum " + money(lineSum[letter]) + " · " + statedBit + gap + " · missing " + (missing[letter].length ? missing[letter].join("; ") : "none");
+      }).join("\n");
+      const extraBlock = BIDS.map((letter) => names[letter] + ": " + (extraLines[letter].length ? extraLines[letter].join("; ") : "none")).join("\n");
+      const days = document.getElementById("quoteDays").value.trim();
+      const list = ITEMS.map((label, i) => (checks.querySelectorAll("input")[i].checked ? "[x] " : "[ ] ") + label).join("\n");
+      const text = [
+        fmt(new Date()),
+        "",
+        "Contractor bid comparison",
+        "Project: " + (document.getElementById("project").value.trim() || "[Project]"),
+        "Site: " + (document.getElementById("address").value.trim() || "not entered"),
+        days ? "Quote window I was told: " + days + " days. That number is mine, not a rule on this page." : "Quote window: not entered. This page does not supply one.",
+        "",
+        "Shared scope",
+        matrix,
+        "",
+        "Line sums against stated totals",
+        gaps,
+        "",
+        "Extras not on the shared scope",
+        extraBlock,
+        "",
+        lowestComplete ? "Lowest line sum among bids with every scope line priced: " + names[lowestComplete] + " at " + money(lineSum[lowestComplete]) + "." : "No bid has every scope line priced, so there is no lowest complete bid.",
+        "A lower line sum is not a recommendation. Allowances, exclusions, and who pulls permits are on the proposals.",
+        "",
+        "Checklist:",
+        list,
+        "",
+        "This packet is a worksheet. It is not a contract, a bid, or a license check."
+      ].join("\n");
+      document.getElementById("letter").textContent = text;
+    }
+    document.getElementById("example").addEventListener("click", () => {
+      document.getElementById("project").value = "Kitchen, 12 Oak";
+      document.getElementById("address").value = "12 Oak";
+      document.getElementById("bidA").value = "Harbor & Co";
+      document.getElementById("bidB").value = "Lane Remodel";
+      document.getElementById("bidC").value = "North Finish";
+      document.getElementById("quoteDays").value = "";
+      document.getElementById("statedA").value = "18400";
+      document.getElementById("statedB").value = "16250";
+      document.getElementById("statedC").value = "19800";
+      scope = [
+        { id: "ex1", name: "Demo and haul-away", prices: { A: "", B: "1800", C: "2100" } },
+        { id: "ex2", name: "Cabinets", prices: { A: "7400", B: "6900", C: "8200" } },
+        { id: "ex3", name: "Countertops", prices: { A: "3100", B: "2800", C: "3400" } },
+        { id: "ex4", name: "Electrical", prices: { A: "2200", B: "", C: "2400" } }
+      ];
+      extras = [{ name: "Temporary sink", amount: "350", bid: "C" }];
+      saveScope();
+      saveExtras();
+      drawScope();
+      drawExtras();
+      form.dispatchEvent(new Event("input", { bubbles: true }));
+      render();
+    });
+    form.addEventListener("input", (e) => {
+      if (e.target && e.target.id && e.target.id.indexOf("bid") === 0) drawPrices();
+      render();
+    });
+    document.getElementById("copy").addEventListener("click", () => copyText(document.getElementById("letter").textContent, document.getElementById("copy")));
+    render();
+  </script>
+</body>
+</html>

@@ -9,7 +9,7 @@ Ship in order. Check the box in the same commit that adds the page. Register the
 - [x] Unemployment appeal packet — dates, determination number, hearing checklist. No state benefit amounts.
 - [x] Small-claims worksheet — claim math, filing-fee field the user fills, evidence index. No court addresses.
 - [x] Subscription audit — paste monthly charges, flag annualized cost, cancellation script.
-- [ ] Contractor bid comparison — normalize 3 bids to the same scope, flag missing line items.
+- [x] Contractor bid comparison — normalize 3 bids to the same scope, flag missing line items.
 - [ ] Move paperwork checklist — DMV, voter, insurance, USPS, schools. Link only to official domains.
 - [ ] Medical EOB decoder — user pastes allowed / billed / patient responsibility labels and gets a plain-English reading. No code lookup that invents prices.
 - [ ] Debt payoff order — avalanche vs snowball on user-entered balances and APRs.

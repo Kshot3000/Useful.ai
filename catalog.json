@@ -51,6 +51,13 @@
       "status": "live",
       "path": "tools/subscription-audit.html",
       "search": ["subscription audit", "cancel subscription script", "annualized subscription cost"]
+    },
+    {
+      "slug": "contractor-bid",
+      "title": "Contractor bid comparison",
+      "status": "live",
+      "path": "tools/contractor-bid.html",
+      "search": ["contractor bid comparison", "compare contractor bids", "missing line items on a bid"]
     }
   ]
 }
