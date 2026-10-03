@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Unemployment appeal packet — Useful.ai</title>
+  <meta name="description" content="Appeal packet from your determination number, the deadline days on the notice, and a hearing checklist. No invented benefit amounts or state deadlines.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect fill='%231a1916' width='32' height='32' rx='6'/%3E%3Cpath d='M8 22 V10 h4.2 c3.2 0 5 1.5 5 3.8 0 1.6-.9 2.8-2.3 3.3 1.7.4 2.8 1.7 2.8 3.5 0 2.5-2 3.9-5.4 3.9H8zm3-6.8h1.4c1.3 0 2-.6 2-1.6s-.7-1.5-2-1.5H11v3.1zm0 2.4v3.2h1.7c1.4 0 2.2-.6 2.2-1.6s-.8-1.6-2.2-1.6H11z' fill='%23f4f1ea'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,500&family=Outfit:wght@400;520;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/site.css">
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <a class="brand" href="../index.html">Useful<i>.ai</i></a>
+      <nav><a href="../index.html">All tools</a></nav>
+    </header>
+    <p class="crumb"><a href="../index.html">Tools</a> / Unemployment appeal</p>
+    <section class="hero">
+      <p class="kicker">After the determination</p>
+      <h1>Unemployment appeal packet</h1>
+      <p class="lede">Appeal windows are on the notice, and they are not the same in every state. Type the number of days the notice gives you. This page dates the packet, keeps the determination number next to the hearing list, and does not state a benefit amount.</p>
+    </section>
+    <div class="layout">
+      <form class="panel" id="form">
+        <ol class="steps">
+          <li><span>01</span><div>Copy the determination number and the mailing date exactly as printed. If the notice counts from receipt instead, use the date you actually received it.</div></li>
+          <li><span>02</span><div>Type the appeal window in days from that notice, or from the workforce-agency page it cites. Leave it blank if you have not checked.</div></li>
+          <li><span>03</span><div>File the way the notice says — portal, mail, or fax. This page drafts the request. It does not file it.</div></li>
+        </ol>
+        <div class="row">
+          <div class="field"><label for="claimant">Your name</label><input id="claimant" placeholder="Name on the claim"></div>
+          <div class="field"><label for="claimid">Claim or claimant ID, if printed</label><input id="claimid" placeholder="From the notice"></div>
+        </div>
+        <div class="field"><label for="address">Your mailing address</label><input id="address" placeholder="Street, city, state, ZIP"></div>
+        <div class="row">
+          <div class="field"><label for="agency">Agency on the notice</label><input id="agency" placeholder="State workforce agency name"></div>
+          <div class="field"><label for="detnum">Determination number</label><input id="detnum" placeholder="As printed"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label for="mailed">Date on the determination</label><input id="mailed" type="date"></div>
+          <div class="field"><label for="received">Date you received it</label><input id="received" type="date"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label for="trigger">Days count from</label>
+            <select id="trigger">
+              <option value="mailed">The date printed on the notice</option>
+              <option value="received">The date you received it</option>
+            </select>
+          </div>
+          <div class="field"><label for="days">Appeal window in days, from the notice</label><input id="days" type="number" min="1" step="1" inputmode="numeric" placeholder="Blank until you read it"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label for="employer">Employer named</label><input id="employer" placeholder="Employer"></div>
+          <div class="field"><label for="lastwork">Last day worked</label><input id="lastwork" type="date"></div>
+        </div>
+        <div class="field"><label for="method">How the notice says to file</label><input id="method" placeholder="Portal, mail address, or fax — copy from the notice"></div>
+        <div class="field"><label for="why">Why the determination is wrong, in your words</label><textarea id="why" placeholder="What happened, and what the notice got wrong. No benefit figures needed."></textarea></div>
+        <div class="row">
+          <div class="field"><label for="hearing">Hearing date, if already set</label><input id="hearing" type="date"></div>
+          <div class="field"><label for="hearingtime">Hearing time and how you join</label><input id="hearingtime" placeholder="Time, phone, or address from the notice"></div>
+        </div>
+        <label>Hearing checklist</label>
+        <div id="checks"></div>
+        <div class="actions">
+          <button class="secondary" id="example" type="button">Load example</button>
+        </div>
+        <p class="note">Example fills names only. The day count stays blank so a sample does not look like a deadline.</p>
+      </form>
+      <aside class="result" aria-live="polite">
+        <p class="kicker">Appeal window</p>
+        <div class="statgrid" id="stats"></div>
+        <div id="flag"></div>
+        <pre class="letter" id="letter"></pre>
+        <div class="actions">
+          <button type="button" id="copy">Copy packet</button>
+          <button type="button" class="secondary" onclick="window.print()">Print</button>
+        </div>
+      </aside>
+    </div>
+    <footer class="site"><span>Not legal, tax, or medical advice. Appeal days, filing method, and hearing rules are on your determination and the agency that issued it.</span><span><a href="../index.html">All tools</a></span></footer>
+  </div>
+  <script src="../assets/site.js"></script>
+  <script>
+    const form = document.getElementById("form");
+    persist("useful-unemployment-appeal", form);
+    const ITEMS = [
+      "Determination notice in hand, number matches this packet",
+      "Appeal filed the way the notice requires, before the date you confirmed",
+      "Copy of what you filed, with the date you sent or submitted it",
+      "Employer name, address, and last day worked",
+      "Separation note, warning, or resignation you still have",
+      "Pay records for the weeks the determination discusses",
+      "Witness names and numbers, if anyone saw the separation",
+      "Phone that will be free, or the address, for the hearing",
+      "Calendar hold for the hearing time on the notice",
+      "Short notes, in your words, on what the notice got wrong"
+    ];
+    const checks = document.getElementById("checks");
+    const savedChecks = JSON.parse(localStorage.getItem("useful-unemployment-appeal-checks") || "[]");
+    ITEMS.forEach((label, i) => {
+      const row = document.createElement("label");
+      row.className = "check";
+      row.innerHTML = '<input type="checkbox" data-i="' + i + '"> <span>' + label + '</span>';
+      const box = row.querySelector("input");
+      box.checked = !!savedChecks[i];
+      box.addEventListener("change", () => { saveChecks(); render(); });
+      checks.appendChild(row);
+    });
+    function saveChecks() {
+      const state = [...checks.querySelectorAll("input")].map(el => el.checked);
+      localStorage.setItem("useful-unemployment-appeal-checks", JSON.stringify(state));
+    }
+    function fmt(d) { return d.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }); }
+    function render() {
+      const days = Number(document.getElementById("days").value);
+      const trigger = document.getElementById("trigger").value;
+      const startRaw = document.getElementById(trigger === "received" ? "received" : "mailed").value;
+      let due = null;
+      if (startRaw && days > 0) {
+        due = new Date(startRaw + "T12:00:00");
+        due.setDate(due.getDate() + days);
+      }
+      const today = new Date();
+      const hearingRaw = document.getElementById("hearing").value;
+      const hearing = hearingRaw ? new Date(hearingRaw + "T12:00:00") : null;
+      const done = [...checks.querySelectorAll("input")].filter(el => el.checked).length;
+      document.getElementById("stats").innerHTML =
+        '<div class="stat"><span>Determination</span><b>' + (document.getElementById("detnum").value.trim() || "Not entered") + '</b></div>' +
+        '<div class="stat emph"><span>File by</span><b>' + (due ? fmt(due) : "Need a date and days") + '</b></div>' +
+        '<div class="stat"><span>Hearing list</span><b>' + done + " / " + ITEMS.length + '</b></div>';
+      const flag = document.getElementById("flag");
+      if (!due) flag.innerHTML = '<div class="callout">The file-by date stays blank until you enter the start date and the days printed on the notice.</div>';
+      else if (today > due) flag.innerHTML = '<div class="callout warn">That date is already past. Some notices allow a late appeal only for a reason they define. Read the notice before you rely on this draft.</div>';
+      else flag.innerHTML = '<div class="callout ok">Window still open on the dates you entered. File the way the notice says, not only by copying this packet.</div>';
+      const list = ITEMS.map((label, i) => (checks.querySelectorAll("input")[i].checked ? "[x] " : "[ ] ") + label).join("\n");
+      const text = [
+        fmt(today),
+        "",
+        document.getElementById("agency").value.trim() || "[Agency on the notice]",
+        "",
+        "Re: appeal of determination " + (document.getElementById("detnum").value.trim() || "[determination number]"),
+        "Claimant: " + (document.getElementById("claimant").value.trim() || "[Name]"),
+        "Claim or claimant ID: " + (document.getElementById("claimid").value.trim() || "[if printed]"),
+        "Mailing address: " + (document.getElementById("address").value.trim() || "[address]"),
+        "",
+        "I request an appeal of the determination dated " + (document.getElementById("mailed").value || "[date on notice]") + ".",
+        "I received it " + (document.getElementById("received").value || "[date received, if you have it]") + ".",
+        due ? "Using the " + days + "-day window I read on the notice, counted from the " + (trigger === "received" ? "date I received it" : "date printed on the notice") + ", the date I am using is " + fmt(due) + "." : "I have not entered a confirmed appeal window in days, so this packet does not state a deadline.",
+        "Filing method on the notice: " + (document.getElementById("method").value.trim() || "[copy from the notice]"),
+        "",
+        "Employer: " + (document.getElementById("employer").value.trim() || "[employer]"),
+        "Last day worked: " + (document.getElementById("lastwork").value || "[date]"),
+        "",
+        "What the determination got wrong:",
+        document.getElementById("why").value.trim() || "[Your account. Leave benefit amounts off this page.]",
+        "",
+        "Hearing: " + (hearing ? fmt(hearing) : "Not scheduled on this packet") + (document.getElementById("hearingtime").value.trim() ? ", " + document.getElementById("hearingtime").value.trim() : ""),
+        "",
+        "Hearing checklist:",
+        list,
+        "",
+        "This draft is not a filing. Send it only in the way the notice requires.",
+        "",
+        document.getElementById("claimant").value.trim() || "[Name]"
+      ].join("\n");
+      document.getElementById("letter").textContent = text;
+    }
+    document.getElementById("example").addEventListener("click", () => {
+      document.getElementById("claimant").value = "Jordan Hale";
+      document.getElementById("claimid").value = "C-000000";
+      document.getElementById("address").value = "18 Pine Street, Madison, WI 53703";
+      document.getElementById("agency").value = "State workforce agency on the notice";
+      document.getElementById("detnum").value = "DET-000000";
+      document.getElementById("employer").value = "North Warehouse Co.";
+      document.getElementById("method").value = "Online portal named on the notice";
+      document.getElementById("why").value = "The notice says I quit. I was laid off when the shift ended. I can bring the separation email.";
+      document.getElementById("hearingtime").value = "Not set yet";
+      document.getElementById("days").value = "";
+      form.dispatchEvent(new Event("input", { bubbles: true }));
+      render();
+    });
+    form.addEventListener("input", render);
+    document.getElementById("copy").addEventListener("click", () => copyText(document.getElementById("letter").textContent, document.getElementById("copy")));
+    render();
+  </script>
+</body>
+</html>

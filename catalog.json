@@ -30,6 +30,13 @@
       "status": "live",
       "path": "tools/security-deposit.html",
       "search": ["security deposit demand letter", "security deposit return deadline", "how to get security deposit back"]
+    },
+    {
+      "slug": "unemployment-appeal",
+      "title": "Unemployment appeal packet",
+      "status": "live",
+      "path": "tools/unemployment-appeal.html",
+      "search": ["unemployment appeal packet", "unemployment hearing checklist", "appeal unemployment determination"]
     }
   ]
 }

@@ -6,7 +6,7 @@ Ship in order. Check the box in the same commit that adds the page. Register the
 - [x] 2026 federal take-home estimate (single + married filing jointly only)
 - [x] 72-hour car accident checklist
 - [x] Security-deposit timeline — user enters the state's deadline in days; do not invent statutes. Include a demand-letter draft and a photo log.
-- [ ] Unemployment appeal packet — dates, determination number, hearing checklist. No state benefit amounts.
+- [x] Unemployment appeal packet — dates, determination number, hearing checklist. No state benefit amounts.
 - [ ] Small-claims worksheet — claim math, filing-fee field the user fills, evidence index. No court addresses.
 - [ ] Subscription audit — paste monthly charges, flag annualized cost, cancellation script.
 - [ ] Contractor bid comparison — normalize 3 bids to the same scope, flag missing line items.
