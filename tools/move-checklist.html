@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Move paperwork checklist — Useful.ai</title>
+  <meta name="description" content="A moving checklist for USPS, DMV, voter registration, insurance, and schools. Official links only. Deadlines stay blank until you type the date you confirmed.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect fill='%231a1916' width='32' height='32' rx='6'/%3E%3Cpath d='M8 22 V10 h4.2 c3.2 0 5 1.5 5 3.8 0 1.6-.9 2.8-2.3 3.3 1.7.4 2.8 1.7 2.8 3.5 0 2.5-2 3.9-5.4 3.9H8zm3-6.8h1.4c1.3 0 2-.6 2-1.6s-.7-1.5-2-1.5H11v3.1zm0 2.4v3.2h1.7c1.4 0 2.2-.6 2.2-1.6s-.8-1.6-2.2-1.6H11z' fill='%23f4f1ea'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,500&family=Outfit:wght@400;520;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/site.css">
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <a class="brand" href="../index.html">Useful<i>.ai</i></a>
+      <nav><a href="../index.html">All tools</a></nav>
+    </header>
+    <p class="crumb"><a href="../index.html">Tools</a> / Move paperwork</p>
+    <section class="hero">
+      <p class="kicker">USPS, DMV, voter, insurance, schools</p>
+      <h1>The move, as a packet</h1>
+      <p class="lede">Five desks, official links only, and a checklist saved on this device. This page does not know your state's license window, registration window, or school enrollment date. Those fields stay blank until you type the date the official page gave you.</p>
+    </section>
+    <div class="layout">
+      <form class="panel" id="form">
+        <div class="row">
+          <div class="field"><label for="from">Moving from</label><input id="from" placeholder="City, state"></div>
+          <div class="field"><label for="to">Moving to</label><input id="to" placeholder="City, state"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label for="movedate">Move date</label><input id="movedate" type="date"></div>
+          <div class="field"><label for="who">Who is on the packet</label><input id="who" placeholder="Names on the lease or title"></div>
+        </div>
+        <p class="note">Deadlines below are yours. Look them up on the linked official page, then type the date. A blank is not a guess.</p>
+        <div class="row">
+          <div class="field"><label for="dmvdate">License or registration date you confirmed</label><input id="dmvdate" type="date"></div>
+          <div class="field"><label for="voterdate">Voter update date you confirmed</label><input id="voterdate" type="date"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label for="insdate">Insurer notice date you confirmed</label><input id="insdate" type="date"></div>
+          <div class="field"><label for="schooldate">School enrollment date you confirmed</label><input id="schooldate" type="date"></div>
+        </div>
+        <div class="field"><label for="notes">Confirmation numbers and what the page actually said</label><textarea id="notes" placeholder="USPS confirmation:&#10;DMV page said:&#10;Policy numbers:&#10;School office:"></textarea></div>
+        <div id="checks"></div>
+        <div class="actions">
+          <button type="button" class="secondary" id="example">Load example</button>
+          <button type="button" class="secondary" id="clear">Clear saved</button>
+        </div>
+        <p class="note">Official pages only: <a href="https://www.usps.com/manage/forward.htm">USPS mail forwarding</a> · <a href="https://www.usa.gov/motor-vehicle-services">USA.gov motor vehicle services</a> · <a href="https://vote.gov/">vote.gov</a> · <a href="https://www.usa.gov/state-consumer">USA.gov state consumer offices</a> · <a href="https://www.healthcare.gov/reporting-changes/when-you-move/">HealthCare.gov when you move</a> · <a href="https://nces.ed.gov/ccd/schoolsearch/">NCES public school search</a>.</p>
+      </form>
+      <aside class="result" aria-live="polite">
+        <p class="kicker">Packet</p>
+        <div class="statgrid" id="stats"></div>
+        <div id="flag"></div>
+        <pre class="letter" id="letter"></pre>
+        <div class="actions">
+          <button type="button" id="copy">Copy packet</button>
+          <button type="button" class="secondary" onclick="window.print()">Print</button>
+        </div>
+      </aside>
+    </div>
+    <footer class="site"><span>Not legal, tax, or medical advice. State deadlines are not on this page.</span><span><a href="../index.html">All tools</a></span></footer>
+  </div>
+  <script src="../assets/site.js"></script>
+  <script>
+    const items = [
+      ["usps", "USPS", "Start mail forwarding on the USPS page. Write the confirmation number.", "https://www.usps.com/manage/forward.htm"],
+      ["usps-hold", "USPS", "If the new box is not ready, note a hold only if USPS offers it for that address. Do not assume a length.", "https://www.usps.com/manage/forward.htm"],
+      ["dmv-find", "DMV", "Open the state motor-vehicle page from USA.gov. Write the license and registration dates that page states.", "https://www.usa.gov/motor-vehicle-services"],
+      ["dmv-docs", "DMV", "List the documents that page asks for: proof of address, title, insurance card. Do not add a document it did not name.", "https://www.usa.gov/motor-vehicle-services"],
+      ["voter", "Voter", "Update the registration on vote.gov or the state site it sends you to. Record the confirmation.", "https://vote.gov/"],
+      ["ins-auto", "Insurance", "Tell the auto and renters or homeowners insurer the new garaging and mailing address. Ask them for the effective date in writing.", "https://www.usa.gov/state-consumer"],
+      ["ins-health", "Insurance", "If the move changes a Marketplace plan, use the HealthCare.gov move page. Employer and Medicaid rules are on those notices, not here.", "https://www.healthcare.gov/reporting-changes/when-you-move/"],
+      ["school-find", "Schools", "Look up the public school on the NCES search, then confirm enrollment with that district. Type the date the office gave you.", "https://nces.ed.gov/ccd/schoolsearch/"],
+      ["school-records", "Schools", "Request the records release the way the current school describes it. Keep the request date in the notes.", "https://nces.ed.gov/ccd/schoolsearch/"]
+    ];
+    const checks = document.getElementById("checks");
+    const savedChecks = JSON.parse(localStorage.getItem("useful-move-checks") || "{}");
+    let lastGroup = "";
+    items.forEach(([id, group, label]) => {
+      if (group !== lastGroup) {
+        const h = document.createElement("p");
+        h.className = "kicker";
+        h.style.margin = "16px 0 0";
+        h.textContent = group;
+        checks.appendChild(h);
+        lastGroup = group;
+      }
+      const row = document.createElement("label");
+      row.className = "check";
+      row.innerHTML = '<input type="checkbox" id="' + id + '"' + (savedChecks[id] ? " checked" : "") + '><span>' + label + '</span>';
+      checks.appendChild(row);
+    });
+    persist("useful-move", document.getElementById("form"));
+    function val(id, blank) {
+      const v = document.getElementById(id).value.trim();
+      return v || blank;
+    }
+    function render() {
+      const state = {};
+      items.forEach(([id]) => { state[id] = document.getElementById(id).checked; });
+      localStorage.setItem("useful-move-checks", JSON.stringify(state));
+      const done = items.filter(([id]) => document.getElementById(id).checked);
+      const open = items.filter(([id]) => !document.getElementById(id).checked);
+      const deadlines = [
+        ["dmvdate", "License or registration"],
+        ["voterdate", "Voter"],
+        ["insdate", "Insurance"],
+        ["schooldate", "School"]
+      ];
+      const filled = deadlines.filter(([id]) => document.getElementById(id).value);
+      document.getElementById("stats").innerHTML =
+        '<div class="stat emph"><span>Done</span><b>' + done.length + ' / ' + items.length + '</b></div>' +
+        '<div class="stat"><span>Dates you confirmed</span><b>' + filled.length + ' / ' + deadlines.length + '</b></div>' +
+        '<div class="stat"><span>Move date</span><b>' + (document.getElementById("movedate").value || "blank") + '</b></div>';
+      const missingCore = ["usps", "dmv-find", "voter", "ins-auto"].filter((id) => !document.getElementById(id).checked);
+      document.getElementById("flag").innerHTML = missingCore.length
+        ? '<div class="callout warn">Still open in the core set: ' + missingCore.join(", ") + '. Deadlines are only the dates you typed.</div>'
+        : '<div class="callout ok">USPS, DMV lookup, voter, and insurer notice are checked. School lines stay on the packet if they still apply.</div>';
+      const lines = [
+        "MOVE PAPERWORK PACKET",
+        "From: " + val("from", "[city, state]"),
+        "To: " + val("to", "[city, state]"),
+        "Move date: " + val("movedate", "[not entered]"),
+        "People: " + val("who", "[names]"),
+        "",
+        "Dates confirmed on an official page (blank means not entered):",
+        "License or registration: " + val("dmvdate", "[not entered]"),
+        "Voter: " + val("voterdate", "[not entered]"),
+        "Insurance: " + val("insdate", "[not entered]"),
+        "School: " + val("schooldate", "[not entered]"),
+        "",
+        val("notes", "[confirmation numbers]"),
+        "",
+        "Done:",
+        done.length ? done.map(([, group, label]) => "- [" + group + "] " + label).join("\n") : "- nothing checked",
+        "",
+        "Still open:",
+        open.length ? open.map(([, group, label]) => "- [" + group + "] " + label).join("\n") : "- none",
+        "",
+        "Official pages, not advice:",
+        "- https://www.usps.com/manage/forward.htm",
+        "- https://www.usa.gov/motor-vehicle-services",
+        "- https://vote.gov/",
+        "- https://www.usa.gov/state-consumer",
+        "- https://www.healthcare.gov/reporting-changes/when-you-move/",
+        "- https://nces.ed.gov/ccd/schoolsearch/",
+        "",
+        "This page did not supply a statute, a day count, or a court or DMV address."
+      ];
+      document.getElementById("letter").textContent = lines.join("\n");
+    }
+    document.getElementById("form").addEventListener("input", render);
+    document.getElementById("form").addEventListener("change", render);
+    document.getElementById("copy").addEventListener("click", () => copyText(document.getElementById("letter").textContent, document.getElementById("copy")));
+    document.getElementById("example").addEventListener("click", () => {
+      document.getElementById("from").value = "Austin, TX";
+      document.getElementById("to").value = "Columbus, OH";
+      document.getElementById("movedate").value = "2026-11-01";
+      document.getElementById("who").value = "A. Rivera, J. Rivera";
+      document.getElementById("notes").value = "Example only. Replace with the confirmation the official page gave you.\nUSPS confirmation: [paste]\nDMV page said: [paste the date, do not invent one]";
+      document.getElementById("usps").checked = true;
+      render();
+      document.getElementById("form").dispatchEvent(new Event("input", { bubbles: true }));
+    });
+    document.getElementById("clear").addEventListener("click", () => {
+      localStorage.removeItem("useful-move");
+      localStorage.removeItem("useful-move-checks");
+      document.getElementById("form").reset();
+      items.forEach(([id]) => { document.getElementById(id).checked = false; });
+      render();
+    });
+    render();
+  </script>
+</body>
+</html>

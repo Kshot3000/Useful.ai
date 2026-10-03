@@ -58,6 +58,13 @@
       "status": "live",
       "path": "tools/contractor-bid.html",
       "search": ["contractor bid comparison", "compare contractor bids", "missing line items on a bid"]
+    },
+    {
+      "slug": "move-checklist",
+      "title": "Move paperwork checklist",
+      "status": "live",
+      "path": "tools/move-checklist.html",
+      "search": ["moving checklist dmv voter insurance usps", "change of address checklist", "what to update when you move"]
     }
   ]
 }
