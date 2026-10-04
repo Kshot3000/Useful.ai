@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mileage reimbursement packet — Useful.ai</title>
+  <meta name="description" content="Log trips and a per-mile rate you type. This page multiplies miles by that rate and drafts a reimbursement note. It does not state an IRS mileage rate or a payment deadline.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect fill='%231a1916' width='32' height='32' rx='6'/%3E%3Cpath d='M8 22 V10 h4.2 c3.2 0 5 1.5 5 3.8 0 1.6-.9 2.8-2.3 3.3 1.7.4 2.8 1.7 2.8 3.5 0 2.5-2 3.9-5.4 3.9H8zm3-6.8h1.4c1.3 0 2-.6 2-1.6s-.7-1.5-2-1.5H11v3.1zm0 2.4v3.2h1.7c1.4 0 2.2-.6 2.2-1.6s-.8-1.6-2.2-1.6H11z' fill='%23f4f1ea'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,500&family=Outfit:wght@400;520;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/site.css">
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <a class="brand" href="../index.html">Useful<i>.ai</i></a>
+      <nav><a href="../index.html">All tools</a></nav>
+    </header>
+    <p class="crumb"><a href="../index.html">Tools</a> / Mileage log</p>
+    <section class="hero">
+      <p class="kicker">Rate from your policy, not from this page</p>
+      <h1>Mileage reimbursement packet</h1>
+      <p class="lede">Type each trip and the per-mile rate your policy, notice, or agreement actually names. This page multiplies those figures and writes a note. It does not look up an IRS mileage rate, a tax deduction, or a payment deadline.</p>
+    </section>
+    <div class="layout">
+      <form class="panel" id="form">
+        <ol class="steps">
+          <li><span>01</span><div>Copy the rate off the policy or the written agreement. Leave it blank if you have not confirmed a number.</div></li>
+          <li><span>02</span><div>Log each trip you are asking to be paid. Miles are yours. This page does not estimate a route.</div></li>
+          <li><span>03</span><div>If a reply period is in writing, type those days. Leave them blank if you have not confirmed one.</div></li>
+        </ol>
+        <div class="row">
+          <div class="field"><label for="name">Your name</label><input id="name" placeholder="Name on the request"></div>
+          <div class="field"><label for="payer">Who pays mileage</label><input id="payer" placeholder="Employer, client, or desk"></div>
+        </div>
+        <div class="field"><label for="addr">Their address</label><input id="addr" placeholder="From the handbook or the invoice"></div>
+        <div class="row">
+          <div class="field"><label for="start">Period start</label><input id="start" type="date"></div>
+          <div class="field"><label for="end">Period end</label><input id="end" type="date"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label for="rate">Per-mile rate you confirmed</label><input id="rate" type="number" min="0" step="0.001" inputmode="decimal" placeholder="Blank until you confirm it"></div>
+          <div class="field"><label for="ratesource">Where that rate came from</label><input id="ratesource" placeholder="Policy, agreement, or blank"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label for="paid">Already reimbursed for these trips</label><input id="paid" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0 if nothing yet"></div>
+          <div class="field"><label for="ref">Request or employee number</label><input id="ref" placeholder="Optional"></div>
+        </div>
+        <div class="field"><label for="note">What the trips were for</label><textarea id="note" placeholder="Client visits, site work, or whatever the policy covers. Do not invent a tax rule."></textarea></div>
+        <div class="row">
+          <div class="field"><label for="sent">Date you will send this</label><input id="sent" type="date"></div>
+          <div class="field"><label for="days">Follow-up days, if you confirmed them</label><input id="days" type="number" min="1" step="1" inputmode="numeric" placeholder="Blank until you confirm"></div>
+        </div>
+        <div class="field"><label for="daysource">Where those days came from</label><input id="daysource" placeholder="Handbook section, or blank"></div>
+        <label>Trip log</label>
+        <div id="rows"></div>
+        <div class="actions">
+          <button class="secondary" id="addrow" type="button">Add a trip</button>
+          <button class="secondary" id="example" type="button">Load example</button>
+        </div>
+      </form>
+      <aside class="result" aria-live="polite">
+        <p class="kicker">Packet</p>
+        <div class="statgrid" id="stats"></div>
+        <div id="flag"></div>
+        <pre class="letter" id="letter"></pre>
+        <div class="actions">
+          <button type="button" id="copy">Copy letter</button>
+          <button type="button" class="secondary" onclick="window.print()">Print</button>
+        </div>
+        <p class="note">Saved in this browser only. Example text is not a real request. The rate is whatever you type. This page does not state an IRS mileage rate.</p>
+      </aside>
+    </div>
+    <footer class="site"><span>Not legal, tax, or medical advice. No mileage rate and no payment deadline are stated unless you type them.</span><span><a href="../index.html">All tools</a></span></footer>
+  </div>
+  <script src="../assets/site.js"></script>
+  <script>
+    const form = document.getElementById("form");
+    const save = persist("useful-mileage-log", form);
+    const rows = document.getElementById("rows");
+    function addRow(route, miles) {
+      const row = document.createElement("div");
+      row.className = "photo-row";
+      row.innerHTML = '<input class="route" placeholder="Date, from, to" value="' + (route || "") + '"><input class="miles" type="number" min="0" step="0.1" inputmode="decimal" placeholder="Miles" value="' + (miles || "") + '"><button type="button" class="secondary">Remove</button>';
+      row.querySelector("button").addEventListener("click", () => { row.remove(); render(); });
+      row.addEventListener("input", render);
+      rows.appendChild(row);
+    }
+    document.getElementById("addrow").addEventListener("click", () => addRow());
+    addRow();
+    function num(id) {
+      const raw = document.getElementById(id).value;
+      if (raw === "" || raw == null) return null;
+      const n = Number(raw);
+      return Number.isFinite(n) ? n : null;
+    }
+    function fmt(d) { return d.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }); }
+    function render() {
+      const rate = num("rate");
+      const paid = num("paid");
+      const days = num("days");
+      const sent = document.getElementById("sent").value;
+      let follow = null;
+      if (sent && days > 0) {
+        follow = new Date(sent + "T12:00:00");
+        follow.setDate(follow.getDate() + days);
+      }
+      let miles = 0;
+      let tripCount = 0;
+      const log = [];
+      rows.querySelectorAll(".photo-row").forEach(row => {
+        const route = row.querySelector(".route").value.trim();
+        const raw = row.querySelector(".miles").value;
+        const m = raw === "" ? null : Number(raw);
+        if (!route && (m == null || !Number.isFinite(m))) return;
+        tripCount += 1;
+        if (m != null && Number.isFinite(m)) miles += m;
+        const mileText = m == null || !Number.isFinite(m) ? "miles not entered" : m + " miles";
+        log.push("- " + (route || "Trip") + ": " + mileText);
+      });
+      const gross = rate == null ? null : miles * rate;
+      const open = gross == null ? null : gross - (paid == null ? 0 : paid);
+      document.getElementById("stats").innerHTML =
+        '<div class="stat"><span>Trips</span><b>' + tripCount + '</b></div>' +
+        '<div class="stat"><span>Miles</span><b>' + (tripCount ? miles.toLocaleString("en-US", { maximumFractionDigits: 1 }) : "None logged") + '</b></div>' +
+        '<div class="stat"><span>Rate you typed</span><b>' + (rate == null ? "Not entered" : money(rate)) + '</b></div>' +
+        '<div class="stat emph"><span>Still open</span><b>' + (open == null ? "Need a rate" : money(open)) + '</b></div>';
+      const flag = document.getElementById("flag");
+      if (!tripCount) flag.innerHTML = '<div class="callout">Add at least one trip. This page does not estimate miles.</div>';
+      else if (rate == null) flag.innerHTML = '<div class="callout">No dollar total until you type the per-mile rate you confirmed. This page does not supply an IRS rate.</div>';
+      else if (open < 0) flag.innerHTML = '<div class="callout warn">Already reimbursed is higher than miles times the rate you typed. Check both figures before you send this.</div>';
+      else if (!follow) flag.innerHTML = '<div class="callout">Miles times the rate you typed is ' + money(gross) + '. No follow-up date until you enter a send date and a day count you confirmed.</div>';
+      else flag.innerHTML = '<div class="callout ok">Follow-up date is ' + fmt(follow) + ', counted from the send date plus the days you typed. That is arithmetic, not a deadline this page looked up.</div>';
+      const today = new Date();
+      const period = (document.getElementById("start").value || "[start not entered]") + " through " + (document.getElementById("end").value || "[end not entered]");
+      const rateLine = rate == null
+        ? "Per-mile rate: not entered. This note does not state one, and it does not use an IRS rate."
+        : "Per-mile rate I am using: " + money(rate) + (document.getElementById("ratesource").value.trim() ? ", from " + document.getElementById("ratesource").value.trim() : "") + ". That figure is what I typed, not a rate this page looked up.";
+      const openLine = open == null
+        ? "Amount requested: not calculated."
+        : "Miles times that rate: " + money(gross) + ". Already reimbursed for these trips: " + money(paid == null ? 0 : paid) + ". Still open on these figures: " + money(open) + ". That is multiplication and subtraction, not a tax deduction.";
+      const text = [
+        fmt(sent ? new Date(sent + "T12:00:00") : today),
+        "",
+        document.getElementById("payer").value.trim() || "[Who pays mileage]",
+        document.getElementById("addr").value.trim() || "[Address]",
+        "",
+        "Re: mileage reimbursement" + (document.getElementById("ref").value.trim() ? ", " + document.getElementById("ref").value.trim() : "") + ", " + period,
+        "",
+        "Please reimburse the trips below at the per-mile rate I confirmed. This note does not cite a statute, an IRS mileage rate, or a payment deadline I have not entered.",
+        "",
+        document.getElementById("note").value.trim() || "No purpose note entered.",
+        "",
+        "Period: " + period + ".",
+        rateLine,
+        "Trips logged: " + tripCount + ". Miles entered: " + miles + ".",
+        openLine,
+        "",
+        follow ? "Using the " + days + " days I confirmed" + (document.getElementById("daysource").value.trim() ? " (" + document.getElementById("daysource").value.trim() + ")" : "") + ", counted from " + sent + ", the follow-up date I get is " + fmt(follow) + ". That date is arithmetic on the days I typed, not a deadline this page looked up." : "I have not entered a confirmed reply period, so this note does not state one.",
+        "Trip log:",
+        log.length ? log.join("\n") : "None logged on this page.",
+        "",
+        "Please confirm what will be paid and the date of any payment already issued for these trips.",
+        "",
+        document.getElementById("name").value.trim() || "[Name]"
+      ].join("\n").replace(/\n{3,}/g, "\n\n");
+      document.getElementById("letter").textContent = text;
+    }
+    document.getElementById("example").addEventListener("click", () => {
+      document.getElementById("name").value = "Sample Driver";
+      document.getElementById("payer").value = "Sample Mileage Desk";
+      document.getElementById("addr").value = "40 Sample Ave, Sample City";
+      document.getElementById("start").value = "2026-09-01";
+      document.getElementById("end").value = "2026-09-30";
+      document.getElementById("rate").value = "0.50";
+      document.getElementById("ratesource").value = "Sample policy rate, not an IRS figure";
+      document.getElementById("paid").value = "20";
+      document.getElementById("ref").value = "EMP-19";
+      document.getElementById("note").value = "Sample only. Two site visits. Not a real request.";
+      document.getElementById("sent").value = "2026-10-03";
+      document.getElementById("days").value = "";
+      document.getElementById("daysource").value = "";
+      rows.innerHTML = "";
+      addRow("2026-09-04, office to site A", "18.4");
+      addRow("2026-09-18, office to site B and back", "42");
+      save();
+      render();
+    });
+    form.addEventListener("input", render);
+    document.getElementById("copy").addEventListener("click", () => copyText(document.getElementById("letter").textContent, document.getElementById("copy")));
+    render();
+  </script>
+</body>
+</html>

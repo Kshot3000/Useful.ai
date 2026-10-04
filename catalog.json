@@ -121,6 +121,13 @@
       "status": "live",
       "path": "tools/claim-log.html",
       "search": ["insurance claim status letter", "claim log what has been paid", "follow up on an insurance claim", "claim number packet"]
+    },
+    {
+      "slug": "mileage-log",
+      "title": "Mileage reimbursement packet",
+      "status": "live",
+      "path": "tools/mileage-log.html",
+      "search": ["mileage reimbursement form", "mileage log for work", "per mile reimbursement request", "business miles letter"]
     }
   ]
 }
