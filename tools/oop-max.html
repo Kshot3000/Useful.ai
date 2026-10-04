@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Out-of-pocket max tracker — Useful.ai</title>
+  <meta name="description" content="Track a deductible and out-of-pocket max from the numbers on your plan summary and the allowed amounts on your EOBs. No plan lookup and no invented prices.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect fill='%231a1916' width='32' height='32' rx='6'/%3E%3Cpath d='M8 22 V10 h4.2 c3.2 0 5 1.5 5 3.8 0 1.6-.9 2.8-2.3 3.3 1.7.4 2.8 1.7 2.8 3.5 0 2.5-2 3.9-5.4 3.9H8zm3-6.8h1.4c1.3 0 2-.6 2-1.6s-.7-1.5-2-1.5H11v3.1zm0 2.4v3.2h1.7c1.4 0 2.2-.6 2.2-1.6s-.8-1.6-2.2-1.6H11z' fill='%23f4f1ea'/%3E%3C/svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,500&family=Outfit:wght@400;520;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/site.css">
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <a class="brand" href="../index.html">Useful<i>.ai</i></a>
+      <nav><a href="../index.html">All tools</a></nav>
+    </header>
+    <p class="crumb"><a href="../index.html">Tools</a> / Out-of-pocket max</p>
+    <section class="hero">
+      <p class="kicker">Deductible, coinsurance, cap</p>
+      <h1>Out-of-pocket max tracker</h1>
+      <p class="lede">Type the deductible, the percent you pay after it, and the out-of-pocket max from your plan summary. Then add claims from the EOBs. The page runs that arithmetic. It does not look up a plan or a price.</p>
+    </section>
+    <div class="layout">
+      <form class="panel" id="form">
+        <ol class="steps">
+          <li><span>01</span><div>Copy the deductible, coinsurance, and out-of-pocket max from the summary of benefits. Individual and family figures are often different — track the one the portal is using.</div></li>
+          <li><span>02</span><div>If the portal already shows progress, type those amounts. Leave them blank only if this year has not been applied yet.</div></li>
+          <li><span>03</span><div>Add each claim’s allowed amount from the EOB, in date order. A fixed copay is a number you type, not a rate this page knows.</div></li>
+        </ol>
+        <div class="row">
+          <div class="field"><label for="who">Name on the packet</label><input id="who" placeholder="Name"></div>
+          <div class="field"><label for="plan">Plan label, as you want it on the packet</label><input id="plan" placeholder="Plan name from the card"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label for="year">Plan year you are tracking</label><input id="year" placeholder="2026"></div>
+          <div class="field"><label for="tier">Which accumulator</label>
+            <select id="tier">
+              <option value="">Choose</option>
+              <option value="Individual">Individual</option>
+              <option value="Family">Family</option>
+            </select>
+          </div>
+        </div>
+        <div class="row">
+          <div class="field"><label for="deductible">Deductible on the summary</label><input id="deductible" type="number" min="0" step="0.01" inputmode="decimal" placeholder="You type this"></div>
+          <div class="field"><label for="coinsurance">Percent you pay after the deductible</label><input id="coinsurance" type="number" min="0" max="100" step="0.1" inputmode="decimal" placeholder="From the summary, 0–100"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label for="oop">Out-of-pocket max on the summary</label><input id="oop" type="number" min="0" step="0.01" inputmode="decimal" placeholder="You type this"></div>
+          <div class="field"><label for="already-ded">Already applied to the deductible</label><input id="already-ded" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Blank means 0"></div>
+        </div>
+        <div class="field"><label for="already-oop">Already applied to the out-of-pocket max</label><input id="already-oop" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Blank means 0"></div>
+        <label class="check"><input type="checkbox" id="counts"> <span>Payments that meet the deductible also count toward the out-of-pocket max I entered. Uncheck if your summary says they do not.</span></label>
+        <label>Claims</label>
+        <div id="claims"></div>
+        <div class="actions">
+          <button class="ghost" id="add-claim" type="button">Add claim</button>
+          <button class="secondary" id="example" type="button">Load example</button>
+        </div>
+        <label>Before you treat the running total as the portal</label>
+        <div id="checks"></div>
+        <p class="note">Model on this page: until the deductible you entered is met, you pay the allowed amount. After that, you pay the percent you entered of what is left. That share stops at the out-of-pocket max you entered. Copays, excluded services, out-of-network caps, and family cross-accumulation are not assumed — a fixed amount is only used if you type it. This is not a benefits quote.</p>
+      </form>
+      <aside class="result" aria-live="polite">
+        <p class="kicker">Running total from your figures</p>
+        <div class="statgrid" id="stats"></div>
+        <div id="flagbox"></div>
+        <table class="bands" id="claim-table"></table>
+        <pre class="letter" id="letter"></pre>
+        <div class="actions">
+          <button type="button" id="copy">Copy packet</button>
+          <button type="button" class="secondary" onclick="window.print()">Print</button>
+        </div>
+      </aside>
+    </div>
+    <footer class="site"><span>Not legal, tax, or medical advice. Not a plan quote and not a benefits determination. Deductible, coinsurance, out-of-pocket max, and claim amounts are numbers you enter. Dated 3 October 2026.</span><span><a href="../index.html">All tools</a></span></footer>
+  </div>
+  <script src="../assets/site.js"></script>
+  <script>
+    const form = document.getElementById("form");
+    persist("useful-oop-max", form);
+    const countsBox = document.getElementById("counts");
+    countsBox.checked = localStorage.getItem("useful-oop-max-counts") !== "0";
+    countsBox.addEventListener("change", () => {
+      localStorage.setItem("useful-oop-max-counts", countsBox.checked ? "1" : "0");
+      render();
+    });
+    const ITEMS = [
+      "Deductible, coinsurance, and out-of-pocket max match the summary of benefits for this person and year",
+      "I am tracking one accumulator — individual or family — not mixing the two",
+      "Allowed amounts are copied from EOBs, not from a billed charge I guessed",
+      "Anything the portal already applied is typed in the already-applied fields"
+    ];
+    const checks = document.getElementById("checks");
+    const savedChecks = JSON.parse(localStorage.getItem("useful-oop-max-checks") || "[]");
+    ITEMS.forEach((label, i) => {
+      const row = document.createElement("label");
+      row.className = "check";
+      row.innerHTML = '<input type="checkbox" data-i="' + i + '"> <span>' + label + '</span>';
+      const box = row.querySelector("input");
+      box.checked = !!savedChecks[i];
+      box.addEventListener("change", () => { saveChecks(); render(); });
+      checks.appendChild(row);
+    });
+    function saveChecks() {
+      localStorage.setItem("useful-oop-max-checks", JSON.stringify([...checks.querySelectorAll("input")].map(el => el.checked)));
+    }
+    const claimsEl = document.getElementById("claims");
+    let claims = JSON.parse(localStorage.getItem("useful-oop-max-claims") || "[]");
+    function saveClaims() {
+      localStorage.setItem("useful-oop-max-claims", JSON.stringify(claims));
+    }
+    function escapeAttr(s) {
+      var amp = String.fromCharCode(38);
+      return String(s || "").replace(/&/g, amp + "amp;").replace(/"/g, amp + "quot;").replace(/</g, amp + "lt;");
+    }
+    function drawClaims() {
+      claimsEl.innerHTML = "";
+      claims.forEach((c) => {
+        const block = document.createElement("div");
+        block.className = "debt-block";
+        block.innerHTML =
+          '<div class="photo-row">' +
+            '<input data-k="date" type="date" value="' + escapeAttr(c.date) + '">' +
+            '<input data-k="label" value="' + escapeAttr(c.label) + '" placeholder="What the EOB calls it">' +
+            '<button type="button" class="secondary" data-remove="1">Remove</button>' +
+          '</div>' +
+          '<div class="row">' +
+            '<input data-k="allowed" value="' + escapeAttr(c.allowed) + '" inputmode="decimal" placeholder="Allowed amount on the EOB">' +
+            '<input data-k="fixed" value="' + escapeAttr(c.fixed) + '" inputmode="decimal" placeholder="Fixed copay, only if the EOB says one">' +
+          '</div>' +
+          '<div class="field"><input data-k="eob" value="' + escapeAttr(c.eob) + '" inputmode="decimal" placeholder="Patient responsibility on the EOB, optional"></div>';
+        claimsEl.appendChild(block);
+      });
+    }
+    drawClaims();
+    claimsEl.addEventListener("input", (e) => {
+      const block = e.target.closest(".debt-block");
+      if (!block) return;
+      const i = [...claimsEl.children].indexOf(block);
+      claims[i][e.target.dataset.k] = e.target.value;
+      saveClaims();
+      render();
+    });
+    claimsEl.addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-remove]");
+      if (!btn) return;
+      const block = btn.closest(".debt-block");
+      claims.splice([...claimsEl.children].indexOf(block), 1);
+      saveClaims();
+      drawClaims();
+      render();
+    });
+    document.getElementById("add-claim").addEventListener("click", () => {
+      claims.push({ date: "", label: "", allowed: "", fixed: "", eob: "" });
+      saveClaims();
+      drawClaims();
+      render();
+    });
+    function num(v) {
+      if (v === "" || v == null) return null;
+      const n = Number(String(v).replace(/,/g, ""));
+      return Number.isFinite(n) ? n : null;
+    }
+    function cents(n) { return Math.round(n * 100) / 100; }
+    function fmt(d) { return d.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }); }
+    function run() {
+      const deductible = num(document.getElementById("deductible").value);
+      const coins = num(document.getElementById("coinsurance").value);
+      const oop = num(document.getElementById("oop").value);
+      const alreadyDedRaw = document.getElementById("already-ded").value;
+      const alreadyOopRaw = document.getElementById("already-oop").value;
+      const alreadyDed = alreadyDedRaw === "" ? 0 : num(alreadyDedRaw);
+      const alreadyOop = alreadyOopRaw === "" ? 0 : num(alreadyOopRaw);
+      const ready = deductible != null && deductible >= 0 && coins != null && coins >= 0 && coins <= 100 && oop != null && oop >= 0 && alreadyDed != null && alreadyDed >= 0 && alreadyOop != null && alreadyOop >= 0;
+      const rows = claims.map((c, i) => ({
+        i: i,
+        date: c.date || "",
+        label: (c.label || "").trim() || ("Claim " + (i + 1)),
+        allowed: num(c.allowed),
+        fixed: c.fixed === "" ? null : num(c.fixed),
+        eob: c.eob === "" ? null : num(c.eob)
+      }));
+      const usable = rows.filter((r) => r.allowed != null && r.allowed >= 0 && (r.fixed == null || r.fixed >= 0));
+      const ordered = usable.slice().sort((a, b) => {
+        if (a.date && b.date && a.date !== b.date) return a.date < b.date ? -1 : 1;
+        return a.i - b.i;
+      });
+      let dedLeft = ready ? Math.max(0, deductible - alreadyDed) : 0;
+      let oopLeft = ready ? Math.max(0, oop - alreadyOop) : 0;
+      const applied = [];
+      const gaps = [];
+      if (ready) {
+        ordered.forEach((r) => {
+          let toDed = 0;
+          let coinsPart = 0;
+          let patient = 0;
+          let note = "";
+          if (r.fixed != null) {
+            patient = Math.min(r.fixed, oopLeft);
+            if (r.fixed > oopLeft + 0.009) note = "Fixed amount cut at the remaining out-of-pocket max";
+            else note = "Fixed amount you typed";
+            oopLeft = cents(oopLeft - patient);
+          } else if (oopLeft <= 0.009) {
+            patient = 0;
+            note = "Out-of-pocket max already met on these figures";
+          } else {
+            toDed = Math.min(dedLeft, r.allowed);
+            const after = cents(r.allowed - toDed);
+            coinsPart = cents(after * (coins / 100));
+            const raw = countsBox.checked ? cents(toDed + coinsPart) : coinsPart;
+            patient = Math.min(raw, oopLeft);
+            if (raw > oopLeft + 0.009) note = "Share cut at the remaining out-of-pocket max";
+            else if (toDed > 0 && coinsPart > 0) note = "Part deductible, part coinsurance";
+            else if (toDed > 0) note = "Toward the deductible";
+            else note = "Coinsurance after the deductible";
+            dedLeft = cents(dedLeft - toDed);
+            oopLeft = cents(oopLeft - patient);
+          }
+          applied.push({
+            label: r.label,
+            date: r.date,
+            allowed: r.allowed,
+            patient: cents(patient),
+            toDed: cents(toDed),
+            note: note,
+            eob: r.eob,
+            oopLeft: oopLeft,
+            dedLeft: dedLeft
+          });
+          if (r.eob != null && Math.abs(r.eob - patient) > 0.05) gaps.push(r.label);
+        });
+      }
+      return {
+        ready: ready,
+        deductible: deductible,
+        coins: coins,
+        oop: oop,
+        alreadyDed: alreadyDed,
+        alreadyOop: alreadyOop,
+        alreadyDedBlank: alreadyDedRaw === "",
+        alreadyOopBlank: alreadyOopRaw === "",
+        applied: applied,
+        gaps: gaps,
+        dedLeft: ready ? dedLeft : null,
+        oopLeft: ready ? oopLeft : null,
+        patientSum: ready ? cents(alreadyOop + applied.reduce((s, a) => s + a.patient, 0)) : null,
+        incomplete: rows.length - usable.length
+      };
+    }
+    function render() {
+      const result = run();
+      const appliedPatient = result.applied.reduce((s, a) => s + a.patient, 0);
+      document.getElementById("stats").innerHTML =
+        '<div class="stat"><span>Claims with an allowed amount</span><b>' + result.applied.length + '</b></div>' +
+        '<div class="stat"><span>Your share on those claims</span><b>' + (result.ready ? money(appliedPatient) : "—") + '</b></div>' +
+        '<div class="stat"><span>Deductible still open</span><b>' + (result.ready ? money(result.dedLeft) : "—") + '</b></div>' +
+        '<div class="stat emph"><span>Counted toward the max</span><b>' + (result.ready ? money(result.patientSum) : "—") + '</b></div>' +
+        '<div class="stat emph"><span>Room left under the max</span><b>' + (result.ready ? money(result.oopLeft) : "—") + '</b></div>';
+      const flagbox = document.getElementById("flagbox");
+      if (!result.ready) flagbox.innerHTML = '<div class="callout">Enter a deductible, a coinsurance percent from 0 to 100, and an out-of-pocket max. Progress stays blank until those three are numbers you typed.</div>';
+      else if (result.alreadyOop > result.oop + 0.009) flagbox.innerHTML = '<div class="callout warn">The amount already applied is above the out-of-pocket max you entered. The page will not raise the max.</div>';
+      else if (result.alreadyDed > result.deductible + 0.009) flagbox.innerHTML = '<div class="callout warn">The amount already applied is above the deductible you entered. Check the portal figure against the summary.</div>';
+      else if (countsBox.checked && result.oop + 0.009 < result.deductible) flagbox.innerHTML = '<div class="callout warn">The out-of-pocket max is below the deductible, and deductible payments are set to count toward it. That can be what the summary says — confirm before you rely on the room left.</div>';
+      else if (!result.applied.length) flagbox.innerHTML = '<div class="callout">Plan figures are in. Add a claim with the allowed amount from an EOB to run the share.</div>';
+      else if (result.gaps.length) flagbox.innerHTML = '<div class="callout warn">' + result.gaps.length + ' EOB patient-responsibility ' + (result.gaps.length === 1 ? 'figure does' : 'figures do') + ' not match this model. The packet keeps both. The portal number is the one to send.</div>';
+      else if (result.oopLeft <= 0.009) flagbox.innerHTML = '<div class="callout ok">On these figures the out-of-pocket max is met. Later in-network covered claims show a zero share here only if the summary treats the max that way.</div>';
+      else flagbox.innerHTML = '<div class="callout ok">Room left is the max you entered minus what you said was already applied, minus this model’s share. It is arithmetic, not a remaining-benefits quote.</div>';
+      const table = document.getElementById("claim-table");
+      if (result.applied.length) {
+        table.innerHTML = '<thead><tr><th>Claim</th><th>Your share</th></tr></thead><tbody>' +
+          result.applied.map((a) => '<tr><td>' + a.label + (a.date ? ' · ' + a.date : '') + '</td><td>' + money(a.patient) + '</td></tr>').join('') +
+          '</tbody>';
+      } else table.innerHTML = "";
+      const who = document.getElementById("who").value.trim() || "[Name]";
+      const plan = document.getElementById("plan").value.trim() || "[Plan label]";
+      const year = document.getElementById("year").value.trim() || "[Year]";
+      const tier = document.getElementById("tier").value || "[Individual or family — not chosen]";
+      const claimLines = result.applied.length
+        ? result.applied.map((a) => a.date + "  " + a.label + "  allowed " + money(a.allowed) + "  your share " + money(a.patient) + "  (" + a.note + ")" + (a.eob == null ? "" : "  EOB says " + money(a.eob))).join("\n")
+        : "[No claims with an allowed amount yet]";
+      const listChecks = ITEMS.map((label, i) => (checks.querySelectorAll("input")[i].checked ? "[x] " : "[ ] ") + label).join("\n");
+      const text = [
+        fmt(new Date()),
+        "",
+        "Out-of-pocket max tracker",
+        "Name: " + who,
+        "Plan label: " + plan,
+        "Year: " + year,
+        "Accumulator: " + tier,
+        "",
+        "Figures I typed from the summary",
+        "Deductible: " + (result.ready ? money(result.deductible) : "[not a number yet]"),
+        "Percent I pay after the deductible: " + (result.ready ? result.coins + "%" : "[not a number yet]"),
+        "Out-of-pocket max: " + (result.ready ? money(result.oop) : "[not a number yet]"),
+        "Already applied to the deductible: " + (result.alreadyDedBlank ? "not entered (treated as 0)" : money(result.alreadyDed || 0)),
+        "Already applied to the out-of-pocket max: " + (result.alreadyOopBlank ? "not entered (treated as 0)" : money(result.alreadyOop || 0)),
+        "Deductible payments count toward the max: " + (countsBox.checked ? "yes, as I checked" : "no, as I unchecked"),
+        "",
+        "Model on this page",
+        "Until the deductible is met, the share is the allowed amount. After that, the share is the percent I typed of what remains. A fixed copay is used only on a line where I typed one, and it does not reduce the deductible.",
+        "The share on a claim stops at the room left under the max. This page does not know copay schedules, exclusions, or a separate out-of-network cap.",
+        "",
+        "Claims, date order when a date is present",
+        claimLines,
+        "",
+        "Your share on the claims above: " + (result.ready ? money(appliedPatient) : "—"),
+        "Counted toward the max, including what was already applied: " + (result.ready ? money(result.patientSum) : "—"),
+        "Deductible still open: " + (result.ready ? money(result.dedLeft) : "—"),
+        "Room left under the max: " + (result.ready ? money(result.oopLeft) : "—"),
+        result.incomplete ? "Lines skipped because allowed amount was blank or not a number: " + result.incomplete : "Every claim line had an allowed amount.",
+        "",
+        "Checklist:",
+        listChecks,
+        "",
+        "This packet is not a benefits determination. If an EOB patient-responsibility figure differs, keep the EOB. Call the plan with the summary and the EOBs these numbers came from.",
+        "",
+        who
+      ].join("\n");
+      document.getElementById("letter").textContent = text;
+    }
+    document.getElementById("example").addEventListener("click", () => {
+      document.getElementById("who").value = "Jordan Hale";
+      document.getElementById("plan").value = "Example plan — not a real card";
+      document.getElementById("year").value = "2026";
+      document.getElementById("tier").value = "Individual";
+      document.getElementById("deductible").value = "1500";
+      document.getElementById("coinsurance").value = "20";
+      document.getElementById("oop").value = "4000";
+      document.getElementById("already-ded").value = "400";
+      document.getElementById("already-oop").value = "400";
+      countsBox.checked = true;
+      localStorage.setItem("useful-oop-max-counts", "1");
+      claims = [
+        { date: "2026-02-03", label: "Office visit", allowed: "180", fixed: "40", eob: "40" },
+        { date: "2026-03-12", label: "Lab", allowed: "260", fixed: "", eob: "" },
+        { date: "2026-04-02", label: "Imaging", allowed: "1400", fixed: "", eob: "" }
+      ];
+      saveClaims();
+      drawClaims();
+      form.dispatchEvent(new Event("input", { bubbles: true }));
+      render();
+    });
+    form.addEventListener("input", render);
+    document.getElementById("copy").addEventListener("click", () => copyText(document.getElementById("letter").textContent, document.getElementById("copy")));
+    render();
+  </script>
+</body>
+</html>
