@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Billing dispute packet — Useful.ai</title>
+  <meta name="description" content="Compare the amount charged with the amount you authorized. Draft a billing-error letter and an evidence log. You enter the dispute window. No statute on this page.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect fill='%231a1916' width='32' height='32' rx='6'/%3E%3Cpath d='M8 22 V10 h4.2 c3.2 0 5 1.5 5 3.8 0 1.6-.9 2.8-2.3 3.3 1.7.4 2.8 1.7 2.8 3.5 0 2.5-2 3.9-5.4 3.9H8zm3-6.8h1.4c1.3 0 2-.6 2-1.6s-.7-1.5-2-1.5H11v3.1zm0 2.4v3.2h1.7c1.4 0 2.2-.6 2.2-1.6s-.8-1.6-2.2-1.6H11z' fill='%23f4f1ea'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,500&family=Outfit:wght@400;520;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/site.css">
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <a class="brand" href="../index.html">Useful<i>.ai</i></a>
+      <nav><a href="../index.html">All tools</a></nav>
+    </header>
+    <p class="crumb"><a href="../index.html">Tools</a> / Billing dispute</p>
+    <section class="hero">
+      <p class="kicker">Charged versus authorized</p>
+      <h1>Billing dispute packet</h1>
+      <p class="lede">Type the amount on the statement and the amount you agreed to. This page subtracts them, keeps a log of what you can attach, and writes the letter. The dispute window stays blank until you enter the days you confirmed on the notice or the issuer’s page. It does not state a statute.</p>
+    </section>
+    <div class="layout">
+      <form class="panel" id="form">
+        <ol class="steps">
+          <li><span>01</span><div>Copy the charge from the statement, not from memory. The merchant name and the posted amount are what the issuer will look up.</div></li>
+          <li><span>02</span><div>Type only the amount you authorized, or the receipt total. A blank authorized amount is not treated as zero.</div></li>
+          <li><span>03</span><div>Look up the dispute window on the statement, the card agreement, or the issuer’s page. Leave the days empty if you have not confirmed them.</div></li>
+        </ol>
+        <div class="row">
+          <div class="field"><label for="name">Your name</label><input id="name" placeholder="Name on the account"></div>
+          <div class="field"><label for="issuer">Issuer or merchant</label><input id="issuer" placeholder="Who you are writing"></div>
+        </div>
+        <div class="field"><label for="addr">Address for the dispute</label><input id="addr" placeholder="From the statement or the issuer page"></div>
+        <div class="row">
+          <div class="field"><label for="last4">Account last 4</label><input id="last4" inputmode="numeric" maxlength="4" placeholder="Optional"></div>
+          <div class="field"><label for="ref">Statement or dispute number</label><input id="ref" placeholder="If they already assigned one"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label for="merchant">Merchant on the line</label><input id="merchant" placeholder="Name as printed"></div>
+          <div class="field"><label for="kind">What is wrong</label>
+            <select id="kind">
+              <option value="higher">Charged more than I authorized</option>
+              <option value="duplicate">Duplicate charge</option>
+              <option value="missing">Paid and the goods or service never arrived</option>
+              <option value="returned">Returned or canceled, credit missing</option>
+              <option value="unknown">I do not recognize the charge</option>
+            </select>
+          </div>
+        </div>
+        <div class="row">
+          <div class="field"><label for="txdate">Transaction date</label><input id="txdate" type="date"></div>
+          <div class="field"><label for="postdate">Post or statement date</label><input id="postdate" type="date"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label for="charged">Amount charged</label><input id="charged" type="number" min="0" step="0.01" inputmode="decimal" placeholder="From the statement"></div>
+          <div class="field"><label for="authorized">Amount you authorized</label><input id="authorized" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Blank if you never agreed"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label for="credited">Already credited</label><input id="credited" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0"></div>
+          <div class="field"><label for="days">Dispute window in days, if you looked it up</label><input id="days" type="number" min="1" step="1" inputmode="numeric" placeholder="Blank until you confirm it"></div>
+        </div>
+        <div class="field"><label for="source">Where you confirmed the window</label><input id="source" placeholder="Statement, agreement, or issuer page"></div>
+        <div class="field"><label for="story">What happened, in your words</label><textarea id="story" placeholder="Receipt total, return date, or why the line is not yours. Do not invent a policy citation."></textarea></div>
+        <label>Evidence log</label>
+        <div id="rows"></div>
+        <div class="actions">
+          <button class="secondary" id="addrow" type="button">Add a record</button>
+          <button class="secondary" id="example" type="button">Load example</button>
+        </div>
+      </form>
+      <aside class="result" aria-live="polite">
+        <p class="kicker">Difference</p>
+        <div class="statgrid" id="stats"></div>
+        <div id="flag"></div>
+        <pre class="letter" id="letter"></pre>
+        <div class="actions">
+          <button type="button" id="copy">Copy letter</button>
+          <button type="button" class="secondary" onclick="window.print()">Print</button>
+        </div>
+        <p class="note">Saved in this browser only. Example amounts are not a real charge. Send the letter the way the statement says.</p>
+      </aside>
+    </div>
+    <footer class="site"><span>Not legal, tax, or medical advice. Dispute windows and issuer addresses stay blank until you enter them.</span><span><a href="../index.html">All tools</a></span></footer>
+  </div>
+  <script src="../assets/site.js"></script>
+  <script>
+    const form = document.getElementById("form");
+    const save = persist("useful-billing-dispute", form);
+    const rows = document.getElementById("rows");
+    function addRow(kind, note) {
+      const row = document.createElement("div");
+      row.className = "photo-row";
+      row.innerHTML = '<input class="kind" placeholder="Receipt, statement, email" value="' + (kind || "") + '"><input class="note" placeholder="What it shows" value="' + (note || "") + '"><button type="button" class="secondary">Remove</button>';
+      row.querySelector("button").addEventListener("click", () => { row.remove(); render(); });
+      row.addEventListener("input", render);
+      rows.appendChild(row);
+    }
+    document.getElementById("addrow").addEventListener("click", () => addRow());
+    addRow();
+    function num(id) {
+      const raw = document.getElementById(id).value;
+      if (raw === "" || raw == null) return null;
+      const n = Number(raw);
+      return Number.isFinite(n) ? n : null;
+    }
+    function fmt(d) { return d.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }); }
+    function reason() {
+      const v = document.getElementById("kind").value;
+      if (v === "duplicate") return "This looks like a duplicate of a charge I already paid.";
+      if (v === "missing") return "I paid, and the goods or service were not delivered.";
+      if (v === "returned") return "I returned or canceled, and the credit is not on the statement.";
+      if (v === "unknown") return "I do not recognize this charge.";
+      return "The amount charged is higher than the amount I authorized.";
+    }
+    function render() {
+      const charged = num("charged");
+      const authorized = num("authorized");
+      const credited = num("credited") || 0;
+      const days = num("days");
+      const unknown = document.getElementById("kind").value === "unknown";
+      const diff = (charged == null || (authorized == null && !unknown)) ? null : charged - (unknown ? 0 : authorized);
+      const still = diff == null ? null : Math.max(0, diff - credited);
+      const anchor = document.getElementById("postdate").value || document.getElementById("txdate").value;
+      let reply = null;
+      if (anchor && days > 0) {
+        reply = new Date(anchor + "T12:00:00");
+        reply.setDate(reply.getDate() + days);
+      }
+      document.getElementById("stats").innerHTML =
+        '<div class="stat"><span>Charged</span><b>' + (charged == null ? "Need the statement amount" : money(charged)) + '</b></div>' +
+        '<div class="stat"><span>Authorized</span><b>' + (unknown ? "Not recognized" : (authorized == null ? "Not entered" : money(authorized))) + '</b></div>' +
+        '<div class="stat"><span>Already credited</span><b>' + money(credited) + '</b></div>' +
+        '<div class="stat emph"><span>Still open</span><b>' + (still == null ? "—" : money(still)) + '</b></div>';
+      const flag = document.getElementById("flag");
+      if (charged == null) flag.innerHTML = '<div class="callout">Enter the amount on the statement before the difference is calculated.</div>';
+      else if (authorized == null && !unknown) flag.innerHTML = '<div class="callout">The authorized amount stays blank until you type it. A blank is not zero, unless you marked the charge as unrecognized.</div>';
+      else if (still > 0.005) flag.innerHTML = '<div class="callout warn">On these numbers, ' + money(still) + ' is still open after credits. This is subtraction, not a decision by the issuer.</div>';
+      else if (diff != null && diff < -0.005) flag.innerHTML = '<div class="callout ok">The authorized amount is higher than the charge. Recheck the statement line before you send this.</div>';
+      else flag.innerHTML = '<div class="callout ok">The open amount is zero on the figures you entered. A credit may already cover the line.</div>';
+      const log = [...rows.querySelectorAll(".photo-row")].map(row => {
+        const kind = row.querySelector(".kind").value.trim();
+        const note = row.querySelector(".note").value.trim();
+        return kind || note ? "- " + (kind || "Record") + ": " + (note || "on file") : "";
+      }).filter(Boolean);
+      const today = new Date();
+      const text = [
+        fmt(today),
+        "",
+        document.getElementById("issuer").value.trim() || "[Issuer or merchant]",
+        document.getElementById("addr").value.trim() || "[Address from the statement]",
+        "",
+        "Re: billing dispute" + (document.getElementById("ref").value.trim() ? ", " + document.getElementById("ref").value.trim() : "") + (document.getElementById("last4").value.trim() ? ", account ending " + document.getElementById("last4").value.trim() : ""),
+        "",
+        "I am disputing a charge. The figures below are the ones I am using. This letter does not cite a statute or a deadline I have not entered.",
+        "",
+        "Merchant: " + (document.getElementById("merchant").value.trim() || "[merchant on the line]") + ".",
+        "Transaction date: " + (document.getElementById("txdate").value || "[not entered]") + ". Post or statement date: " + (document.getElementById("postdate").value || "[not entered]") + ".",
+        reason(),
+        "Amount charged: " + (charged == null ? "not entered." : money(charged) + "."),
+        "Amount authorized: " + (unknown ? "none — I do not recognize the charge." : (authorized == null ? "not entered, so the difference is not calculated." : money(authorized) + ".")),
+        "Already credited: " + money(credited) + ".",
+        "Still open, on these numbers: " + (still == null ? "not calculated." : money(still) + "."),
+        "",
+        document.getElementById("story").value.trim() || "No further note.",
+        "",
+        reply ? "Using the " + days + "-day window I confirmed" + (document.getElementById("source").value.trim() ? " (" + document.getElementById("source").value.trim() + ")" : "") + ", counted from " + anchor + ", the date I get is " + fmt(reply) + ". That date is arithmetic on the days I typed, not a deadline this page looked up." : "I have not entered a confirmed dispute window, so this letter does not state one.",
+        "",
+        "Records:",
+        log.length ? log.join("\n") : "None logged on this page.",
+        "",
+        "Please correct the charge or send the record that produced this line.",
+        "",
+        document.getElementById("name").value.trim() || "[Name]"
+      ].join("\n");
+      document.getElementById("letter").textContent = text;
+    }
+    document.getElementById("example").addEventListener("click", () => {
+      document.getElementById("name").value = "Sample Cardholder";
+      document.getElementById("issuer").value = "Sample Card Issuer";
+      document.getElementById("addr").value = "PO Box 100, Sample City";
+      document.getElementById("last4").value = "4242";
+      document.getElementById("ref").value = "STMT-09";
+      document.getElementById("merchant").value = "Sample Shop";
+      document.getElementById("kind").value = "higher";
+      document.getElementById("txdate").value = "2026-09-18";
+      document.getElementById("postdate").value = "2026-09-19";
+      document.getElementById("charged").value = "186.40";
+      document.getElementById("authorized").value = "86.40";
+      document.getElementById("credited").value = "0";
+      document.getElementById("days").value = "";
+      document.getElementById("source").value = "";
+      document.getElementById("story").value = "Sample only. Receipt shows 86.40. Statement line shows 186.40. Not a real charge.";
+      rows.innerHTML = "";
+      addRow("Receipt", "Sample Shop, 86.40 on 2026-09-18");
+      addRow("Statement", "Line posted 186.40");
+      save();
+      render();
+    });
+    form.addEventListener("input", render);
+    document.getElementById("copy").addEventListener("click", () => copyText(document.getElementById("letter").textContent, document.getElementById("copy")));
+    render();
+  </script>
+</body>
+</html>

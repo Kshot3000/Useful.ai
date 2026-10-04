@@ -93,6 +93,13 @@
       "status": "live",
       "path": "tools/paycheck-gap.html",
       "search": ["paycheck discrepancy letter", "unpaid wages demand", "overtime missing from stub", "hours worked vs paycheck"]
+    },
+    {
+      "slug": "billing-dispute",
+      "title": "Billing dispute packet",
+      "status": "live",
+      "path": "tools/billing-dispute.html",
+      "search": ["credit card dispute letter", "billing error letter", "charged more than authorized", "statement charge dispute"]
     }
   ]
 }

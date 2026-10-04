@@ -15,6 +15,7 @@ Ship in order. Check the box in the same commit that adds the page. Register the
 - [x] Debt payoff order — avalanche vs snowball on user-entered balances and APRs.
 - [x] Out-of-pocket max tracker — user enters plan deductible, coinsurance, OOP max, and claims.
 - [x] Paycheck gap packet — hours, rate, and overtime multiplier the user enters; demand letter and stub notes. No minimum wage and no statute.
+- [x] Billing dispute packet — charged versus authorized amounts the user enters, dispute window in days the user confirms, evidence log and letter. No statute and no invented deadline.
 
 ## Later, only with a cited source
 - Head-of-household 2026 brackets, once every threshold is copied from Rev. Proc. 2025-32
