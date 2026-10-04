@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Landlord repair request packet — Useful.ai</title>
+  <meta name="description" content="Write a dated repair request with the problem, an access window you choose, a photo log, and a follow-up date from days you enter. No repair statute on this page.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect fill='%231a1916' width='32' height='32' rx='6'/%3E%3Cpath d='M8 22 V10 h4.2 c3.2 0 5 1.5 5 3.8 0 1.6-.9 2.8-2.3 3.3 1.7.4 2.8 1.7 2.8 3.5 0 2.5-2 3.9-5.4 3.9H8zm3-6.8h1.4c1.3 0 2-.6 2-1.6s-.7-1.5-2-1.5H11v3.1zm0 2.4v3.2h1.7c1.4 0 2.2-.6 2.2-1.6s-.8-1.6-2.2-1.6H11z' fill='%23f4f1ea'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,500&family=Outfit:wght@400;520;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/site.css">
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <a class="brand" href="../index.html">Useful<i>.ai</i></a>
+      <nav><a href="../index.html">All tools</a></nav>
+    </header>
+    <p class="crumb"><a href="../index.html">Tools</a> / Repair request</p>
+    <section class="hero">
+      <p class="kicker">Notice, then a follow-up date you set</p>
+      <h1>Landlord repair request packet</h1>
+      <p class="lede">Type what is broken, when you noticed it, and when someone can come in. This page writes the request and counts a follow-up date only from the days you enter. It does not state a repair statute, a habitability rule, or a response deadline.</p>
+    </section>
+    <div class="layout">
+      <form class="panel" id="form">
+        <ol class="steps">
+          <li><span>01</span><div>Name the room and what fails. A photo of the leak is more useful than a legal label you did not look up.</div></li>
+          <li><span>02</span><div>Give an access window you can actually keep. The letter uses only the hours you type.</div></li>
+          <li><span>03</span><div>If your lease or the landlord’s notice names a reply period, type those days. Leave them blank if you have not confirmed a number.</div></li>
+        </ol>
+        <div class="row">
+          <div class="field"><label for="name">Your name</label><input id="name" placeholder="Name on the lease"></div>
+          <div class="field"><label for="landlord">Landlord or manager</label><input id="landlord" placeholder="Who you are writing"></div>
+        </div>
+        <div class="field"><label for="addr">Their address</label><input id="addr" placeholder="From the lease or the portal"></div>
+        <div class="row">
+          <div class="field"><label for="unit">Unit</label><input id="unit" placeholder="Address and unit"></div>
+          <div class="field"><label for="lease">Lease or account number</label><input id="lease" placeholder="Optional"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label for="noticed">Date you noticed it</label><input id="noticed" type="date"></div>
+          <div class="field"><label for="where">Where</label><input id="where" placeholder="Kitchen sink, bedroom ceiling"></div>
+        </div>
+        <div class="field"><label for="problem">What is wrong</label><textarea id="problem" placeholder="What fails, since when, and whether you already told anyone. Do not invent a code citation."></textarea></div>
+        <div class="row">
+          <div class="field"><label for="urgency">How you would label it</label>
+            <select id="urgency">
+              <option value="inconvenient">Inconvenient, not an emergency</option>
+              <option value="worsening">Getting worse</option>
+              <option value="unusable">The room or fixture is unusable</option>
+              <option value="safety">I am treating this as a safety issue</option>
+            </select>
+          </div>
+          <div class="field"><label for="told">Already reported?</label>
+            <select id="told">
+              <option value="no">This is the first written notice</option>
+              <option value="portal">I already submitted a portal request</option>
+              <option value="phone">I already called or texted</option>
+            </select>
+          </div>
+        </div>
+        <div class="row">
+          <div class="field"><label for="access">Access window you can keep</label><input id="access" placeholder="Weekdays 9–11 or after 5"></div>
+          <div class="field"><label for="contact">Phone or email for entry</label><input id="contact" placeholder="How to reach you"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label for="sent">Date you will send this</label><input id="sent" type="date"></div>
+          <div class="field"><label for="days">Follow-up days, if you confirmed them</label><input id="days" type="number" min="1" step="1" inputmode="numeric" placeholder="Blank until you confirm"></div>
+        </div>
+        <div class="field"><label for="source">Where those days came from</label><input id="source" placeholder="Lease section, portal policy, or blank"></div>
+        <label>Photo and message log</label>
+        <div id="rows"></div>
+        <div class="actions">
+          <button class="secondary" id="addrow" type="button">Add a record</button>
+          <button class="secondary" id="example" type="button">Load example</button>
+        </div>
+      </form>
+      <aside class="result" aria-live="polite">
+        <p class="kicker">Packet</p>
+        <div class="statgrid" id="stats"></div>
+        <div id="flag"></div>
+        <pre class="letter" id="letter"></pre>
+        <div class="actions">
+          <button type="button" id="copy">Copy letter</button>
+          <button type="button" class="secondary" onclick="window.print()">Print</button>
+        </div>
+        <p class="note">Saved in this browser only. Example text is not a real unit. Send it the way the lease says — portal, email, or mail — and keep a copy.</p>
+      </aside>
+    </div>
+    <footer class="site"><span>Not legal, tax, or medical advice. No repair deadline is stated unless you type the days.</span><span><a href="../index.html">All tools</a></span></footer>
+  </div>
+  <script src="../assets/site.js"></script>
+  <script>
+    const form = document.getElementById("form");
+    const save = persist("useful-repair-request", form);
+    const rows = document.getElementById("rows");
+    function addRow(kind, note) {
+      const row = document.createElement("div");
+      row.className = "photo-row";
+      row.innerHTML = '<input class="kind" placeholder="Photo, portal ticket, text" value="' + (kind || "") + '"><input class="note" placeholder="What it shows" value="' + (note || "") + '"><button type="button" class="secondary">Remove</button>';
+      row.querySelector("button").addEventListener("click", () => { row.remove(); render(); });
+      row.addEventListener("input", render);
+      rows.appendChild(row);
+    }
+    document.getElementById("addrow").addEventListener("click", () => addRow());
+    addRow();
+    function num(id) {
+      const raw = document.getElementById(id).value;
+      if (raw === "" || raw == null) return null;
+      const n = Number(raw);
+      return Number.isFinite(n) ? n : null;
+    }
+    function fmt(d) { return d.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }); }
+    function label() {
+      const v = document.getElementById("urgency").value;
+      if (v === "worsening") return "I am labeling this as getting worse.";
+      if (v === "unusable") return "I am labeling the room or fixture as unusable.";
+      if (v === "safety") return "I am treating this as a safety issue. That is my description, not a code finding.";
+      return "I am labeling this as inconvenient, not an emergency.";
+    }
+    function prior() {
+      const v = document.getElementById("told").value;
+      if (v === "portal") return "I already submitted a portal request. This letter is the written follow-up.";
+      if (v === "phone") return "I already called or texted. This letter is the written notice.";
+      return "This is the first written notice I am sending.";
+    }
+    function render() {
+      const days = num("days");
+      const sent = document.getElementById("sent").value;
+      const noticed = document.getElementById("noticed").value;
+      let follow = null;
+      if (sent && days > 0) {
+        follow = new Date(sent + "T12:00:00");
+        follow.setDate(follow.getDate() + days);
+      }
+      let waited = null;
+      if (sent && noticed) {
+        const a = new Date(noticed + "T12:00:00");
+        const b = new Date(sent + "T12:00:00");
+        waited = Math.round((b - a) / 86400000);
+      }
+      const log = [...rows.querySelectorAll(".photo-row")].map(row => {
+        const kind = row.querySelector(".kind").value.trim();
+        const note = row.querySelector(".note").value.trim();
+        return kind || note ? "- " + (kind || "Record") + ": " + (note || "on file") : "";
+      }).filter(Boolean);
+      document.getElementById("stats").innerHTML =
+        '<div class="stat"><span>Noticed</span><b>' + (noticed || "Not entered") + '</b></div>' +
+        '<div class="stat"><span>Days before this notice</span><b>' + (waited == null ? "Need both dates" : (waited < 0 ? "Check the dates" : String(waited))) + '</b></div>' +
+        '<div class="stat"><span>Records</span><b>' + log.length + '</b></div>' +
+        '<div class="stat emph"><span>Follow-up</span><b>' + (follow ? fmt(follow) : "No days entered") + '</b></div>';
+      const flag = document.getElementById("flag");
+      if (!document.getElementById("problem").value.trim()) flag.innerHTML = '<div class="callout">Describe the problem before you send this. A blank letter is not a notice.</div>';
+      else if (!document.getElementById("access").value.trim()) flag.innerHTML = '<div class="callout">Add an access window you can keep. The letter will otherwise say you have not given one.</div>';
+      else if (!follow) flag.innerHTML = '<div class="callout">No follow-up date is calculated until you enter both a send date and a day count you confirmed. This page does not supply one.</div>';
+      else flag.innerHTML = '<div class="callout ok">Follow-up date is ' + fmt(follow) + ', counted from the send date plus the days you typed. That is arithmetic, not a deadline this page looked up.</div>';
+      const today = new Date();
+      const text = [
+        fmt(sent ? new Date(sent + "T12:00:00") : today),
+        "",
+        document.getElementById("landlord").value.trim() || "[Landlord or manager]",
+        document.getElementById("addr").value.trim() || "[Address from the lease]",
+        "",
+        "Re: repair request" + (document.getElementById("unit").value.trim() ? ", " + document.getElementById("unit").value.trim() : "") + (document.getElementById("lease").value.trim() ? ", lease " + document.getElementById("lease").value.trim() : ""),
+        "",
+        "Please repair the problem described below. This letter does not cite a statute or a response deadline I have not entered.",
+        "",
+        "Where: " + (document.getElementById("where").value.trim() || "[room or fixture]") + ".",
+        "Date I noticed it: " + (noticed || "[not entered]") + ".",
+        label(),
+        prior(),
+        "",
+        document.getElementById("problem").value.trim() || "No description entered.",
+        "",
+        "Access window I can keep: " + (document.getElementById("access").value.trim() || "not entered.") + (document.getElementById("contact").value.trim() ? " Contact me at " + document.getElementById("contact").value.trim() + "." : ""),
+        "",
+        follow ? "Using the " + days + " days I confirmed" + (document.getElementById("source").value.trim() ? " (" + document.getElementById("source").value.trim() + ")" : "") + ", counted from " + sent + ", the follow-up date I get is " + fmt(follow) + ". That date is arithmetic on the days I typed, not a deadline this page looked up." : "I have not entered a confirmed reply period, so this letter does not state one.",
+        waited != null && waited >= 0 ? "Days from the date I noticed it to the send date: " + waited + "." : "",
+        "Records:",
+        log.length ? log.join("\n") : "None logged on this page.",
+        "",
+        "Please confirm when someone will come, and what will be repaired.",
+        "",
+        document.getElementById("name").value.trim() || "[Name]"
+      ].filter(line => line !== "" || true).join("\n").replace(/\n{3,}/g, "\n\n");
+      document.getElementById("letter").textContent = text;
+    }
+    document.getElementById("example").addEventListener("click", () => {
+      document.getElementById("name").value = "Sample Tenant";
+      document.getElementById("landlord").value = "Sample Property Desk";
+      document.getElementById("addr").value = "100 Sample Ave, Sample City";
+      document.getElementById("unit").value = "12B, 100 Sample Ave";
+      document.getElementById("lease").value = "L-204";
+      document.getElementById("noticed").value = "2026-09-28";
+      document.getElementById("where").value = "Kitchen sink cabinet";
+      document.getElementById("problem").value = "Sample only. Water pools under the sink when the faucet runs. Not a real unit.";
+      document.getElementById("urgency").value = "worsening";
+      document.getElementById("told").value = "portal";
+      document.getElementById("access").value = "Weekdays after 4 p.m.";
+      document.getElementById("contact").value = "sample@example.com";
+      document.getElementById("sent").value = "2026-10-03";
+      document.getElementById("days").value = "";
+      document.getElementById("source").value = "";
+      rows.innerHTML = "";
+      addRow("Photo", "Cabinet floor wet, taken 2026-09-28");
+      addRow("Portal ticket", "Submitted 2026-09-29, no reply logged");
+      save();
+      render();
+    });
+    form.addEventListener("input", render);
+    document.getElementById("copy").addEventListener("click", () => copyText(document.getElementById("letter").textContent, document.getElementById("copy")));
+    render();
+  </script>
+</body>
+</html>

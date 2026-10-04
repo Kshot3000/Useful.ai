@@ -100,6 +100,13 @@
       "status": "live",
       "path": "tools/billing-dispute.html",
       "search": ["credit card dispute letter", "billing error letter", "charged more than authorized", "statement charge dispute"]
+    },
+    {
+      "slug": "repair-request",
+      "title": "Landlord repair request packet",
+      "status": "live",
+      "path": "tools/repair-request.html",
+      "search": ["landlord repair request letter", "maintenance request notice", "how to ask landlord to fix something", "repair follow-up letter"]
     }
   ]
 }
