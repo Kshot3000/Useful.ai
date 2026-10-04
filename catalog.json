@@ -114,6 +114,13 @@
       "status": "live",
       "path": "tools/move-in-report.html",
       "search": ["move in condition report", "rental walkthrough checklist", "apartment inspection form", "move in photo log"]
+    },
+    {
+      "slug": "claim-log",
+      "title": "Insurance claim log",
+      "status": "live",
+      "path": "tools/claim-log.html",
+      "search": ["insurance claim status letter", "claim log what has been paid", "follow up on an insurance claim", "claim number packet"]
     }
   ]
 }

@@ -18,6 +18,7 @@ Ship in order. Check the box in the same commit that adds the page. Register the
 - [x] Billing dispute packet — charged versus authorized amounts the user enters, dispute window in days the user confirms, evidence log and letter. No statute and no invented deadline.
 - [x] Landlord repair request packet — problem, access window, photo log, follow-up date from days the user enters. No repair statute and no invented response deadline.
 - [x] Move-in condition report — room notes, meter readings the user enters, photo log, and a dated report. No habitability statute.
+- [x] Insurance claim log — claim number, amounts the user enters, contact log, status letter. Follow-up days the user confirms. No statute and no invented payment deadline.
 
 ## Later, only with a cited source
 - Head-of-household 2026 brackets, once every threshold is copied from Rev. Proc. 2025-32
