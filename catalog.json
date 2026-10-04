@@ -79,6 +79,13 @@
       "status": "live",
       "path": "tools/debt-payoff.html",
       "search": ["debt payoff avalanche vs snowball", "debt payoff order calculator", "highest interest first vs smallest balance"]
+    },
+    {
+      "slug": "oop-max",
+      "title": "Out-of-pocket max tracker",
+      "status": "live",
+      "path": "tools/oop-max.html",
+      "search": ["out of pocket max tracker", "deductible and coinsurance calculator", "how much until I hit my out of pocket max"]
     }
   ]
 }
