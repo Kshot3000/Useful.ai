@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Utility bill review packet — Useful.ai</title>
+  <meta name="description" content="Log utility bills you typed and compare a month with the average of those months. This page drafts a review letter. It does not state a tariff, a rate, or a dispute deadline.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect fill='%231a1916' width='32' height='32' rx='6'/%3E%3Cpath d='M8 22 V10 h4.2 c3.2 0 5 1.5 5 3.8 0 1.6-.9 2.8-2.3 3.3 1.7.4 2.8 1.7 2.8 3.5 0 2.5-2 3.9-5.4 3.9H8zm3-6.8h1.4c1.3 0 2-.6 2-1.6s-.7-1.5-2-1.5H11v3.1zm0 2.4v3.2h1.7c1.4 0 2.2-.6 2.2-1.6s-.8-1.6-2.2-1.6H11z' fill='%23f4f1ea'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,500&family=Outfit:wght@400;520;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/site.css">
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <a class="brand" href="../index.html">Useful<i>.ai</i></a>
+      <nav><a href="../index.html">All tools</a></nav>
+    </header>
+    <p class="crumb"><a href="../index.html">Tools</a> / Utility review</p>
+    <section class="hero">
+      <p class="kicker">The rate is the one on the bill, not on this page</p>
+      <h1>Utility bill review packet</h1>
+      <p class="lede">Type the months, the amounts charged, and the usage printed on the bills. This page averages those figures and writes a review letter. It does not look up a tariff, a kilowatt-hour price, or a dispute deadline.</p>
+    </section>
+    <div class="layout">
+      <form class="panel" id="form">
+        <ol class="steps">
+          <li><span>01</span><div>Copy the account number and the service address off the bill. Leave a field blank if you have not confirmed it.</div></li>
+          <li><span>02</span><div>Log each month: the period, the amount charged, and the usage units printed on that bill. This page does not estimate a rate.</div></li>
+          <li><span>03</span><div>If a reply period is printed on the bill or the account page you opened, type those days. Leave them blank if you have not confirmed one.</div></li>
+        </ol>
+        <div class="row">
+          <div class="field"><label for="name">Your name</label><input id="name" placeholder="Name on the account"></div>
+          <div class="field"><label for="provider">Utility</label><input id="provider" placeholder="Company on the bill"></div>
+        </div>
+        <div class="field"><label for="addr">Their address or account inbox</label><input id="addr" placeholder="From the bill or the account page"></div>
+        <div class="row">
+          <div class="field"><label for="account">Account number</label><input id="account" placeholder="From the bill"></div>
+          <div class="field"><label for="service">Service address</label><input id="service" placeholder="Address on the bill"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label for="unit">Usage unit on the bills</label><input id="unit" placeholder="kWh, therms, gallons, or blank"></div>
+          <div class="field"><label for="focus">Month you want reviewed</label><input id="focus" placeholder="Match a period you logged"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label for="sent">Date you will send this</label><input id="sent" type="date"></div>
+          <div class="field"><label for="days">Reply days, if you confirmed them</label><input id="days" type="number" min="1" step="1" inputmode="numeric" placeholder="Blank until you confirm"></div>
+        </div>
+        <div class="field"><label for="daysource">Where those days came from</label><input id="daysource" placeholder="Bill line, account page, or blank"></div>
+        <div class="field"><label for="note">What looks off</label><textarea id="note" placeholder="Higher than the months you logged, estimated read, vacant unit, or a charge you do not recognize. Do not invent a tariff."></textarea></div>
+        <label>Bill log</label>
+        <div id="rows"></div>
+        <div class="actions">
+          <button class="secondary" id="addrow" type="button">Add a month</button>
+          <button class="secondary" id="example" type="button">Load example</button>
+        </div>
+      </form>
+      <aside class="result" aria-live="polite">
+        <p class="kicker">Packet</p>
+        <div class="statgrid" id="stats"></div>
+        <div id="flag"></div>
+        <pre class="letter" id="letter"></pre>
+        <div class="actions">
+          <button type="button" id="copy">Copy letter</button>
+          <button type="button" class="secondary" onclick="window.print()">Print</button>
+        </div>
+        <p class="note">Saved in this browser only. Example text is not a real account. The charges are whatever you type. This page does not state a tariff, a unit price, or a dispute deadline.</p>
+      </aside>
+    </div>
+    <footer class="site"><span>Not legal, tax, or medical advice. No tariff, unit price, or dispute deadline is stated unless you type it.</span><span><a href="../index.html">All tools</a></span></footer>
+  </div>
+  <script src="../assets/site.js"></script>
+  <script>
+    const form = document.getElementById("form");
+    const save = persist("useful-utility-review", form);
+    const rows = document.getElementById("rows");
+    function addRow(period, billed, usage) {
+      const row = document.createElement("div");
+      row.className = "photo-row";
+      row.innerHTML = '<input class="period" placeholder="Billing period" value="' + (period || "") + '"><input class="billed" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Amount charged" value="' + (billed || "") + '"><input class="usage" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Usage on the bill" value="' + (usage || "") + '"><button type="button" class="secondary">Remove</button>';
+      row.querySelector("button").addEventListener("click", () => { row.remove(); render(); });
+      row.addEventListener("input", render);
+      rows.appendChild(row);
+    }
+    document.getElementById("addrow").addEventListener("click", () => addRow());
+    addRow();
+    function num(id) {
+      const raw = document.getElementById(id).value;
+      if (raw === "" || raw == null) return null;
+      const n = Number(raw);
+      return Number.isFinite(n) ? n : null;
+    }
+    function fmt(d) { return d.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }); }
+    function render() {
+      const days = num("days");
+      const sent = document.getElementById("sent").value;
+      const unit = document.getElementById("unit").value.trim() || "units";
+      const focus = document.getElementById("focus").value.trim().toLowerCase();
+      let follow = null;
+      if (sent && days > 0) {
+        follow = new Date(sent + "T12:00:00");
+        follow.setDate(follow.getDate() + days);
+      }
+      let count = 0;
+      let sum = 0;
+      let usageSum = 0;
+      let usageCount = 0;
+      let focusBill = null;
+      const log = [];
+      rows.querySelectorAll(".photo-row").forEach(row => {
+        const period = row.querySelector(".period").value.trim();
+        const bRaw = row.querySelector(".billed").value;
+        const uRaw = row.querySelector(".usage").value;
+        const billed = bRaw === "" ? null : Number(bRaw);
+        const usage = uRaw === "" ? null : Number(uRaw);
+        if (!period && billed == null && usage == null) return;
+        count += 1;
+        if (billed != null && Number.isFinite(billed)) sum += billed;
+        if (usage != null && Number.isFinite(usage)) { usageSum += usage; usageCount += 1; }
+        if (focus && period.toLowerCase() === focus && billed != null && Number.isFinite(billed)) focusBill = billed;
+        const bText = billed == null || !Number.isFinite(billed) ? "amount not entered" : money(billed);
+        const uText = usage == null || !Number.isFinite(usage) ? "usage not entered" : usage + " " + unit;
+        log.push("- " + (period || "Period") + ": " + bText + ", " + uText);
+      });
+      const avg = count ? sum / count : null;
+      const gap = focusBill != null && avg != null ? focusBill - avg : null;
+      document.getElementById("stats").innerHTML =
+        '<div class="stat"><span>Months</span><b>' + count + '</b></div>' +
+        '<div class="stat"><span>Logged total</span><b>' + (count ? money(sum) : "None logged") + '</b></div>' +
+        '<div class="stat"><span>Average of bills typed</span><b>' + (avg == null ? "Need a bill" : money(avg)) + '</b></div>' +
+        '<div class="stat emph"><span>Focus vs that average</span><b>' + (gap == null ? "Name a logged month" : money(gap)) + '</b></div>';
+      const flag = document.getElementById("flag");
+      if (!count) flag.innerHTML = '<div class="callout">Add at least one bill. This page does not estimate a rate.</div>';
+      else if (!focus) flag.innerHTML = '<div class="callout">Average of the bills you typed is ' + money(avg) + '. Name a logged month if you want that month compared with the average. That is arithmetic, not a tariff.</div>';
+      else if (focusBill == null) flag.innerHTML = '<div class="callout warn">No billed amount matched "' + document.getElementById("focus").value.trim() + '". The period has to match a row you logged, and that row needs an amount.</div>';
+      else if (gap > 0) flag.innerHTML = '<div class="callout warn">' + money(focusBill) + ' is ' + money(gap) + ' above the average of the bills you typed. That is subtraction, not a finding that the bill is wrong.</div>';
+      else flag.innerHTML = '<div class="callout ok">' + money(focusBill) + ' is ' + money(Math.abs(gap)) + ' at or under the average of the bills you typed. No rate is stated on this page.</div>';
+      const today = new Date();
+      const avgLine = avg == null
+        ? "No bills logged, so this note does not state an average."
+        : "Bills I typed add to " + money(sum) + " across " + count + " month" + (count === 1 ? "" : "s") + ". Average of those amounts: " + money(avg) + ". Usage entered on " + usageCount + " row" + (usageCount === 1 ? "" : "s") + (usageCount ? " totals " + usageSum + " " + unit : "") + ". That is arithmetic on figures I typed, not a tariff.";
+      const focusLine = focusBill == null
+        ? "I have not matched a review month to a logged amount, so this note does not state a gap."
+        : "Month I asked to be reviewed: " + document.getElementById("focus").value.trim() + ", billed " + money(focusBill) + ". Compared with the average of the bills I typed, the difference is " + money(gap) + ". That is subtraction, not a finding that the charge is wrong.";
+      const text = [
+        fmt(sent ? new Date(sent + "T12:00:00") : today),
+        "",
+        document.getElementById("provider").value.trim() || "[Utility]",
+        document.getElementById("addr").value.trim() || "[Address or inbox]",
+        "",
+        "Re: bill review" + (document.getElementById("account").value.trim() ? ", account " + document.getElementById("account").value.trim() : "") + (document.getElementById("service").value.trim() ? ", service address " + document.getElementById("service").value.trim() : ""),
+        "",
+        "Please review the charges below against the months I logged. This note does not cite a statute, a tariff, a unit price, or a dispute deadline I have not entered.",
+        "",
+        document.getElementById("note").value.trim() || "No note entered.",
+        "",
+        avgLine,
+        focusLine,
+        "",
+        follow ? "Using the " + days + " days I confirmed" + (document.getElementById("daysource").value.trim() ? " (" + document.getElementById("daysource").value.trim() + ")" : "") + ", counted from " + sent + ", the follow-up date I get is " + fmt(follow) + ". That date is arithmetic on the days I typed, not a deadline this page looked up." : "I have not entered a confirmed reply period, so this note does not state one.",
+        "Bill log:",
+        log.length ? log.join("\n") : "None logged on this page.",
+        "",
+        "Please confirm the meter read for the month named above, whether any line is an estimate, and which charges you will adjust. Do not treat this note as a rate quote.",
+        "",
+        document.getElementById("name").value.trim() || "[Name]"
+      ].join("\n").replace(/\n{3,}/g, "\n\n");
+      document.getElementById("letter").textContent = text;
+    }
+    document.getElementById("example").addEventListener("click", () => {
+      document.getElementById("name").value = "Sample Account";
+      document.getElementById("provider").value = "Sample Utility Desk";
+      document.getElementById("addr").value = "billing@example.com";
+      document.getElementById("account").value = "UA-2208";
+      document.getElementById("service").value = "18 Example Street";
+      document.getElementById("unit").value = "kWh";
+      document.getElementById("focus").value = "September 2026";
+      document.getElementById("sent").value = "2026-10-04";
+      document.getElementById("days").value = "";
+      document.getElementById("daysource").value = "";
+      document.getElementById("note").value = "Sample only. September is higher than the months typed here. Not a real account and not a rate.";
+      rows.innerHTML = "";
+      addRow("July 2026", "84.10", "610");
+      addRow("August 2026", "91.40", "640");
+      addRow("September 2026", "186.20", "980");
+      save();
+      render();
+    });
+    form.addEventListener("input", render);
+    document.getElementById("copy").addEventListener("click", () => copyText(document.getElementById("letter").textContent, document.getElementById("copy")));
+    render();
+  </script>
+</body>
+</html>

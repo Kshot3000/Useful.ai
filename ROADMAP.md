@@ -22,6 +22,7 @@ Ship in order. Check the box in the same commit that adds the page. Register the
 - [x] Mileage reimbursement packet — trips and a per-mile rate the user enters; do not state an IRS rate. Letter and trip log. Follow-up days the user confirms.
 - [x] Rent ledger and overcharge packet — monthly charged versus lease rent the user enters; letter and month log. No rent-control statute and no invented late-fee cap.
 - [x] Refund request packet — order total and what arrived as amounts the user enters; item log and letter. Return window in days the user confirms. No statute and no invented deadline.
+- [x] Utility bill review packet — months, charges, and usage the user enters; letter and bill log. No tariff and no invented unit price.
 
 ## Later, only with a cited source
 - Head-of-household 2026 brackets, once every threshold is copied from Rev. Proc. 2025-32
