@@ -14,6 +14,7 @@ Ship in order. Check the box in the same commit that adds the page. Register the
 - [x] Medical EOB decoder — user pastes allowed / billed / patient responsibility labels and gets a plain-English reading. No code lookup that invents prices.
 - [x] Debt payoff order — avalanche vs snowball on user-entered balances and APRs.
 - [x] Out-of-pocket max tracker — user enters plan deductible, coinsurance, OOP max, and claims.
+- [x] Paycheck gap packet — hours, rate, and overtime multiplier the user enters; demand letter and stub notes. No minimum wage and no statute.
 
 ## Later, only with a cited source
 - Head-of-household 2026 brackets, once every threshold is copied from Rev. Proc. 2025-32

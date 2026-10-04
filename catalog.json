@@ -86,6 +86,13 @@
       "status": "live",
       "path": "tools/oop-max.html",
       "search": ["out of pocket max tracker", "deductible and coinsurance calculator", "how much until I hit my out of pocket max"]
+    },
+    {
+      "slug": "paycheck-gap",
+      "title": "Paycheck gap packet",
+      "status": "live",
+      "path": "tools/paycheck-gap.html",
+      "search": ["paycheck discrepancy letter", "unpaid wages demand", "overtime missing from stub", "hours worked vs paycheck"]
     }
   ]
 }

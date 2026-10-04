@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Paycheck gap packet — Useful.ai</title>
+  <meta name="description" content="Compare hours and the rate you enter to the gross on the stub. Draft a wage demand. No minimum wage and no invented deadline.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect fill='%231a1916' width='32' height='32' rx='6'/%3E%3Cpath d='M8 22 V10 h4.2 c3.2 0 5 1.5 5 3.8 0 1.6-.9 2.8-2.3 3.3 1.7.4 2.8 1.7 2.8 3.5 0 2.5-2 3.9-5.4 3.9H8zm3-6.8h1.4c1.3 0 2-.6 2-1.6s-.7-1.5-2-1.5H11v3.1zm0 2.4v3.2h1.7c1.4 0 2.2-.6 2.2-1.6s-.8-1.6-2.2-1.6H11z' fill='%23f4f1ea'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,500&family=Outfit:wght@400;520;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/site.css">
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <a class="brand" href="../index.html">Useful<i>.ai</i></a>
+      <nav><a href="../index.html">All tools</a></nav>
+    </header>
+    <p class="crumb"><a href="../index.html">Tools</a> / Paycheck gap</p>
+    <section class="hero">
+      <p class="kicker">Stub versus the hours</p>
+      <h1>Paycheck gap packet</h1>
+      <p class="lede">The rate, the hours, and the overtime multiplier are yours to type from the offer, the handbook, or the statute you checked. This page only multiplies those numbers, subtracts the gross on the stub, and writes the demand. It does not know a minimum wage.</p>
+    </section>
+    <div class="layout">
+      <form class="panel" id="form">
+        <ol class="steps">
+          <li><span>01</span><div>Copy hours from your own record, not from memory of the stub. The stub is what you are checking.</div></li>
+          <li><span>02</span><div>Type the regular rate and the overtime multiplier you confirmed. Leave the multiplier blank if you have not confirmed it. This page will not fill in 1.5 for you.</div></li>
+          <li><span>03</span><div>Compare gross to gross. Taxes and other deductions stay in the notes. A net-pay gap is not the same claim.</div></li>
+        </ol>
+        <div class="row">
+          <div class="field"><label for="worker">Your name</label><input id="worker" placeholder="Employee name"></div>
+          <div class="field"><label for="employer">Employer</label><input id="employer" placeholder="Legal name on the stub"></div>
+        </div>
+        <div class="field"><label for="empaddr">Payroll or HR address</label><input id="empaddr" placeholder="Street, city, state, ZIP"></div>
+        <div class="row">
+          <div class="field"><label for="role">Job title</label><input id="role" placeholder="Title on the stub"></div>
+          <div class="field"><label for="stubno">Stub or check number</label><input id="stubno" placeholder="Optional"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label for="start">Pay period start</label><input id="start" type="date"></div>
+          <div class="field"><label for="end">Pay period end</label><input id="end" type="date"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label for="paydate">Pay date on the stub</label><input id="paydate" type="date"></div>
+          <div class="field"><label for="rate">Regular rate, per hour</label><input id="rate" type="number" min="0" step="0.01" inputmode="decimal" placeholder="From the offer or stub"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label for="reghours">Regular hours you worked</label><input id="reghours" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0"></div>
+          <div class="field"><label for="othours">Overtime hours you worked</label><input id="othours" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label for="otmult">Overtime multiplier you confirmed</label><input id="otmult" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Blank until you confirm it"></div>
+          <div class="field"><label for="other">Other gross you expected</label><input id="other" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Tips, bonus, shift diff"></div>
+        </div>
+        <div class="field"><label for="othernote">What the other gross is</label><input id="othernote" placeholder="e.g. reported tips, not a tax figure"></div>
+        <div class="row">
+          <div class="field"><label for="stubgross">Gross printed on the stub</label><input id="stubgross" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0"></div>
+          <div class="field"><label for="recovered">Already paid toward this gap</label><input id="recovered" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label for="days">Reply window in days, if you looked one up</label><input id="days" type="number" min="1" step="1" inputmode="numeric" placeholder="Blank until you confirm it"></div>
+          <div class="field"><label for="source">Where you confirmed the window</label><input id="source" placeholder="Notice, handbook, or official page"></div>
+        </div>
+        <div class="field"><label for="notes">Deductions or stub notes, not used in the math</label><textarea id="notes" placeholder="Paste tax lines or their explanation. This page does not treat them as the wage gap."></textarea></div>
+        <label>Stub and time log</label>
+        <div id="rows"></div>
+        <div class="actions">
+          <button class="secondary" id="addrow" type="button">Add a record</button>
+          <button class="secondary" id="example" type="button">Load example</button>
+        </div>
+      </form>
+      <aside class="result" aria-live="polite">
+        <p class="kicker">Gap</p>
+        <div class="statgrid" id="stats"></div>
+        <div id="flag"></div>
+        <pre class="letter" id="letter"></pre>
+        <div class="actions">
+          <button type="button" id="copy">Copy letter</button>
+          <button type="button" class="secondary" onclick="window.print()">Print</button>
+        </div>
+        <p class="note">Saved in this browser only. Example numbers are not a wage rate.</p>
+      </aside>
+    </div>
+    <footer class="site"><span>Not legal, tax, or medical advice. Overtime rules, minimum wage, and claim deadlines stay blank until you enter them.</span><span><a href="../index.html">All tools</a></span></footer>
+  </div>
+  <script src="../assets/site.js"></script>
+  <script>
+    const form = document.getElementById("form");
+    const save = persist("useful-paycheck-gap", form);
+    const rows = document.getElementById("rows");
+    function addRow(kind, note) {
+      const row = document.createElement("div");
+      row.className = "photo-row";
+      row.innerHTML = '<input class="kind" placeholder="Stub, timecard, text" value="' + (kind || "") + '"><input class="note" placeholder="What it shows" value="' + (note || "") + '"><button type="button" class="secondary">Remove</button>';
+      row.querySelector("button").addEventListener("click", () => { row.remove(); render(); });
+      row.addEventListener("input", render);
+      rows.appendChild(row);
+    }
+    document.getElementById("addrow").addEventListener("click", () => addRow());
+    addRow();
+    function num(id) {
+      const raw = document.getElementById(id).value;
+      if (raw === "" || raw == null) return null;
+      const n = Number(raw);
+      return Number.isFinite(n) ? n : null;
+    }
+    function fmt(d) { return d.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }); }
+    function period() {
+      const a = document.getElementById("start").value;
+      const b = document.getElementById("end").value;
+      if (a && b) return a + " through " + b;
+      if (a || b) return a || b;
+      return "[pay period]";
+    }
+    function render() {
+      const rate = num("rate");
+      const reg = num("reghours") || 0;
+      const ot = num("othours") || 0;
+      const mult = num("otmult");
+      const other = num("other") || 0;
+      const stub = num("stubgross") || 0;
+      const recovered = num("recovered") || 0;
+      const days = num("days");
+      const regularPay = rate == null ? null : reg * rate;
+      const otPay = (rate == null || mult == null) ? null : ot * rate * mult;
+      const expected = (regularPay == null ? 0 : regularPay) + (otPay == null ? 0 : otPay) + other;
+      const incomplete = rate == null || (ot > 0 && mult == null);
+      const gap = incomplete ? null : expected - stub;
+      const still = gap == null ? null : Math.max(0, gap - recovered);
+      const payRaw = document.getElementById("paydate").value;
+      let reply = null;
+      if (payRaw && days > 0) {
+        reply = new Date(payRaw + "T12:00:00");
+        reply.setDate(reply.getDate() + days);
+      }
+      document.getElementById("stats").innerHTML =
+        '<div class="stat"><span>Regular pay</span><b>' + (regularPay == null ? "Need a rate" : money(regularPay)) + '</b></div>' +
+        '<div class="stat"><span>Overtime pay</span><b>' + (otPay == null ? (ot > 0 ? "Need a multiplier" : money(0)) : money(otPay)) + '</b></div>' +
+        '<div class="stat"><span>Expected gross</span><b>' + (incomplete ? "Incomplete" : money(expected)) + '</b></div>' +
+        '<div class="stat"><span>Stub gross</span><b>' + money(stub) + '</b></div>' +
+        '<div class="stat emph"><span>Still short</span><b>' + (still == null ? "—" : money(still)) + '</b></div>';
+      const flag = document.getElementById("flag");
+      if (incomplete) flag.innerHTML = '<div class="callout">Overtime stays out of the total until you enter both the rate and the multiplier you confirmed. A blank is not 1.5.</div>';
+      else if (still > 0.005) flag.innerHTML = '<div class="callout warn">Expected gross is higher than the stub by ' + money(gap) + '. Already recovered is subtracted. This is arithmetic on your numbers, not a wage order.</div>';
+      else if (gap < -0.005) flag.innerHTML = '<div class="callout ok">The stub gross is higher than the hours you entered. Recheck the hours before you send a demand.</div>';
+      else flag.innerHTML = '<div class="callout ok">Expected gross matches the stub on the numbers you entered. A net-pay difference would be a different note.</div>';
+      const log = [...rows.querySelectorAll(".photo-row")].map(row => {
+        const kind = row.querySelector(".kind").value.trim();
+        const note = row.querySelector(".note").value.trim();
+        return kind || note ? "- " + (kind || "Record") + ": " + (note || "on file") : "";
+      }).filter(Boolean);
+      const today = new Date();
+      const text = [
+        fmt(today),
+        "",
+        document.getElementById("employer").value.trim() || "[Employer]",
+        document.getElementById("empaddr").value.trim() || "[Payroll address]",
+        "",
+        "Re: paycheck gap, " + period() + (document.getElementById("stubno").value.trim() ? ", stub " + document.getElementById("stubno").value.trim() : ""),
+        "",
+        "I am writing about gross pay for " + (document.getElementById("role").value.trim() || "[job title]") + ". The figures below are the hours and rate I am using. This letter does not state a minimum wage or a statute I have not entered.",
+        "",
+        "Regular hours: " + reg + (rate == null ? " at a rate I have not entered." : " at " + money(rate) + " = " + money(regularPay) + "."),
+        "Overtime hours: " + ot + (otPay == null ? " — multiplier not entered, so overtime is not included in the total." : " at " + mult + " times the regular rate = " + money(otPay) + "."),
+        "Other gross: " + money(other) + (document.getElementById("othernote").value.trim() ? " (" + document.getElementById("othernote").value.trim() + ")" : "") + ".",
+        "Expected gross: " + (incomplete ? "incomplete until the missing rate or multiplier is filled in." : money(expected) + "."),
+        "Gross on the stub dated " + (payRaw || "[pay date]") + ": " + money(stub) + ".",
+        "Already paid toward the gap: " + money(recovered) + ".",
+        "Still short, on these numbers: " + (still == null ? "not calculated." : money(still) + "."),
+        "",
+        reply ? "Using the " + days + "-day window I confirmed" + (document.getElementById("source").value.trim() ? " (" + document.getElementById("source").value.trim() + ")" : "") + ", I am asking for a reply by " + fmt(reply) + "." : "I have not entered a confirmed reply window, so this letter does not state one.",
+        "",
+        "Stub notes, not part of the gross math:",
+        document.getElementById("notes").value.trim() || "None pasted.",
+        "",
+        "Records:",
+        log.length ? log.join("\n") : "None logged on this page.",
+        "",
+        "Please correct the gross or send the calculation that produced the stub.",
+        "",
+        document.getElementById("worker").value.trim() || "[Name]"
+      ].join("\n");
+      document.getElementById("letter").textContent = text;
+    }
+    document.getElementById("example").addEventListener("click", () => {
+      document.getElementById("worker").value = "Sample Worker";
+      document.getElementById("employer").value = "Sample Employer";
+      document.getElementById("empaddr").value = "100 Example Ave, Sample City";
+      document.getElementById("role").value = "Line cook";
+      document.getElementById("stubno").value = "1044";
+      document.getElementById("start").value = "2026-09-14";
+      document.getElementById("end").value = "2026-09-27";
+      document.getElementById("paydate").value = "2026-10-02";
+      document.getElementById("rate").value = "18";
+      document.getElementById("reghours").value = "72";
+      document.getElementById("othours").value = "6";
+      document.getElementById("otmult").value = "";
+      document.getElementById("other").value = "40";
+      document.getElementById("othernote").value = "reported tips, sample only";
+      document.getElementById("stubgross").value = "1296";
+      document.getElementById("recovered").value = "0";
+      document.getElementById("days").value = "";
+      document.getElementById("source").value = "";
+      document.getElementById("notes").value = "Sample stub lists tax withholding. Not used in the gap.";
+      rows.innerHTML = "";
+      addRow("Timecard", "72 regular and 6 overtime, sample");
+      addRow("Stub 1044", "Gross printed as 1296");
+      save();
+      render();
+    });
+    form.addEventListener("input", render);
+    document.getElementById("copy").addEventListener("click", () => copyText(document.getElementById("letter").textContent, document.getElementById("copy")));
+    render();
+  </script>
+</body>
+</html>
