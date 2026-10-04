@@ -23,6 +23,7 @@ Ship in order. Check the box in the same commit that adds the page. Register the
 - [x] Rent ledger and overcharge packet — monthly charged versus lease rent the user enters; letter and month log. No rent-control statute and no invented late-fee cap.
 - [x] Refund request packet — order total and what arrived as amounts the user enters; item log and letter. Return window in days the user confirms. No statute and no invented deadline.
 - [x] Utility bill review packet — months, charges, and usage the user enters; letter and bill log. No tariff and no invented unit price.
+- [x] Unpaid invoice packet — invoice lines and amount received the user enters; letter and line log. Follow-up days and any late fee the user confirms. No statute and no invented due date.
 
 ## Later, only with a cited source
 - Head-of-household 2026 brackets, once every threshold is copied from Rev. Proc. 2025-32

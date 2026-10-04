@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Unpaid invoice packet — Useful.ai</title>
+  <meta name="description" content="Log invoice lines and the amount received, both as you type them. This page drafts a follow-up letter. It does not invent a due date, a late fee, or a payment deadline.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect fill='%231a1916' width='32' height='32' rx='6'/%3E%3Cpath d='M8 22 V10 h4.2 c3.2 0 5 1.5 5 3.8 0 1.6-.9 2.8-2.3 3.3 1.7.4 2.8 1.7 2.8 3.5 0 2.5-2 3.9-5.4 3.9H8zm3-6.8h1.4c1.3 0 2-.6 2-1.6s-.7-1.5-2-1.5H11v3.1zm0 2.4v3.2h1.7c1.4 0 2.2-.6 2.2-1.6s-.8-1.6-2.2-1.6H11z' fill='%23f4f1ea'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,500&family=Outfit:wght@400;520;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/site.css">
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <a class="brand" href="../index.html">Useful<i>.ai</i></a>
+      <nav><a href="../index.html">All tools</a></nav>
+    </header>
+    <p class="crumb"><a href="../index.html">Tools</a> / Unpaid invoice</p>
+    <section class="hero">
+      <p class="kicker">The due date is the one on the invoice, not on this page</p>
+      <h1>Unpaid invoice packet</h1>
+      <p class="lede">Type the invoice lines and what has already been received. This page subtracts those figures and writes a follow-up letter. It does not look up a payment term, a late fee, or a collections deadline.</p>
+    </section>
+    <div class="layout">
+      <form class="panel" id="form">
+        <ol class="steps">
+          <li><span>01</span><div>Copy the invoice number, the issue date, and the due date off the invoice you sent. Leave a date blank if you have not confirmed it.</div></li>
+          <li><span>02</span><div>Log each line and the amount received. The open balance is those figures subtracted. This page does not estimate a fee.</div></li>
+          <li><span>03</span><div>If a reply window or a late fee is printed on the contract or the invoice you sent, type it. Leave it blank if you have not confirmed one.</div></li>
+        </ol>
+        <div class="row">
+          <div class="field"><label for="name">Your name</label><input id="name" placeholder="Name on the invoice"></div>
+          <div class="field"><label for="client">Who owes it</label><input id="client" placeholder="Client or accounts desk"></div>
+        </div>
+        <div class="field"><label for="addr">Their address or inbox</label><input id="addr" placeholder="From the contract or the invoice"></div>
+        <div class="row">
+          <div class="field"><label for="invoice">Invoice number</label><input id="invoice" placeholder="From the invoice"></div>
+          <div class="field"><label for="received">Amount already received</label><input id="received" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0 if nothing has arrived"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label for="issued">Issue date, if on the invoice</label><input id="issued" type="date"></div>
+          <div class="field"><label for="due">Due date, if on the invoice</label><input id="due" type="date"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label for="sent">Date you will send this</label><input id="sent" type="date"></div>
+          <div class="field"><label for="days">Reply days, if you confirmed them</label><input id="days" type="number" min="1" step="1" inputmode="numeric" placeholder="Blank until you confirm"></div>
+        </div>
+        <div class="field"><label for="daysource">Where those days came from</label><input id="daysource" placeholder="Invoice line, contract, or blank"></div>
+        <div class="row">
+          <div class="field"><label for="late">Late fee you confirmed, if any</label><input id="late" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Blank until the contract says so"></div>
+          <div class="field"><label for="latesource">Where that fee came from</label><input id="latesource" placeholder="Contract line, or blank"></div>
+        </div>
+        <div class="field"><label for="note">What is still open</label><textarea id="note" placeholder="What was delivered, what was paid, and what you are asking them to send. Do not invent a term."></textarea></div>
+        <label>Invoice lines</label>
+        <div id="rows"></div>
+        <div class="actions">
+          <button class="secondary" id="addrow" type="button">Add a line</button>
+          <button class="secondary" id="example" type="button">Load example</button>
+        </div>
+      </form>
+      <aside class="result" aria-live="polite">
+        <p class="kicker">Packet</p>
+        <div class="statgrid" id="stats"></div>
+        <div id="flag"></div>
+        <pre class="letter" id="letter"></pre>
+        <div class="actions">
+          <button type="button" id="copy">Copy letter</button>
+          <button type="button" class="secondary" onclick="window.print()">Print</button>
+        </div>
+        <p class="note">Saved in this browser only. Example text is not a real client. The amounts are whatever you type. This page does not state a payment term, a late fee, or a collections deadline.</p>
+      </aside>
+    </div>
+    <footer class="site"><span>Not legal, tax, or medical advice. No payment term, late fee, or collections deadline is stated unless you type it.</span><span><a href="../index.html">All tools</a></span></footer>
+  </div>
+  <script src="../assets/site.js"></script>
+  <script>
+    const form = document.getElementById("form");
+    const save = persist("useful-invoice-chase", form);
+    const rows = document.getElementById("rows");
+    const rowKey = "useful-invoice-chase-rows";
+    function addRow(desc, amount) {
+      const row = document.createElement("div");
+      row.className = "photo-row";
+      row.innerHTML = '<input class="desc" placeholder="Line on the invoice" value="' + (desc || "") + '"><input class="amount" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Amount billed" value="' + (amount || "") + '"><button type="button" class="secondary">Remove</button>';
+      row.querySelector("button").addEventListener("click", () => { row.remove(); render(); });
+      row.addEventListener("input", render);
+      rows.appendChild(row);
+    }
+    document.getElementById("addrow").addEventListener("click", () => addRow());
+    function loadRows() {
+      let saved = [];
+      try { saved = JSON.parse(localStorage.getItem(rowKey) || "[]"); } catch (e) { saved = []; }
+      if (!Array.isArray(saved) || !saved.length) { addRow(); return; }
+      saved.forEach(item => addRow(item.desc, item.amount));
+    }
+    loadRows();
+    function num(id) {
+      const raw = document.getElementById(id).value;
+      if (raw === "" || raw == null) return null;
+      const n = Number(raw);
+      return Number.isFinite(n) ? n : null;
+    }
+    function fmt(d) { return d.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }); }
+    function render() {
+      const days = num("days");
+      const sent = document.getElementById("sent").value;
+      const received = num("received");
+      const late = num("late");
+      let follow = null;
+      if (sent && days > 0) {
+        follow = new Date(sent + "T12:00:00");
+        follow.setDate(follow.getDate() + days);
+      }
+      let count = 0;
+      let billed = 0;
+      const log = [];
+      const stored = [];
+      rows.querySelectorAll(".photo-row").forEach(row => {
+        const desc = row.querySelector(".desc").value.trim();
+        const aRaw = row.querySelector(".amount").value;
+        const amount = aRaw === "" ? null : Number(aRaw);
+        stored.push({ desc: desc, amount: aRaw });
+        if (!desc && amount == null) return;
+        count += 1;
+        if (amount != null && Number.isFinite(amount)) billed += amount;
+        const aText = amount == null || !Number.isFinite(amount) ? "amount not entered" : money(amount);
+        log.push("- " + (desc || "Line") + ": " + aText);
+      });
+      localStorage.setItem(rowKey, JSON.stringify(stored));
+      const got = received == null ? 0 : received;
+      const open = count ? billed - got : null;
+      const withFee = open != null && late != null ? open + late : null;
+      document.getElementById("stats").innerHTML =
+        '<div class="stat"><span>Lines</span><b>' + count + '</b></div>' +
+        '<div class="stat"><span>Billed</span><b>' + (count ? money(billed) : "None logged") + '</b></div>' +
+        '<div class="stat"><span>Received</span><b>' + (received == null ? "Not entered" : money(received)) + '</b></div>' +
+        '<div class="stat emph"><span>Still open</span><b>' + (open == null ? "Need a line" : money(open)) + '</b></div>';
+      const flag = document.getElementById("flag");
+      if (!count) flag.innerHTML = '<div class="callout">Add at least one invoice line. This page does not invent a balance.</div>';
+      else if (received == null) flag.innerHTML = '<div class="callout">Lines you typed add to ' + money(billed) + '. Enter what has already arrived, including 0, before this page states an open balance.</div>';
+      else if (open > 0) flag.innerHTML = '<div class="callout warn">' + money(open) + ' is still open after ' + money(got) + ' received. That is subtraction, not a finding that a fee is owed.</div>';
+      else if (open < 0) flag.innerHTML = '<div class="callout warn">Received is ' + money(Math.abs(open)) + ' above the lines you typed. Check the invoice before sending the letter.</div>';
+      else flag.innerHTML = '<div class="callout ok">Received matches the lines you typed. No balance is stated beyond that arithmetic.</div>';
+      const today = new Date();
+      const due = document.getElementById("due").value;
+      const issued = document.getElementById("issued").value;
+      const mathLine = !count
+        ? "No lines logged, so this note does not state a balance."
+        : received == null
+          ? "Lines I typed add to " + money(billed) + ". I have not entered what has been received, so this note does not state an open balance."
+          : "Lines I typed add to " + money(billed) + ". Amount already received: " + money(got) + ". Still open: " + money(open) + ". That is subtraction on figures I typed, not a payment term.";
+      const feeLine = late == null
+        ? "I have not entered a late fee I confirmed, so this note does not add one."
+        : "Late fee I confirmed" + (document.getElementById("latesource").value.trim() ? " (" + document.getElementById("latesource").value.trim() + ")" : "") + ": " + money(late) + (withFee == null ? "." : ". Open balance plus that fee: " + money(withFee) + ". That sum is arithmetic on the fee I typed, not a fee this page looked up.");
+      const text = [
+        fmt(sent ? new Date(sent + "T12:00:00") : today),
+        "",
+        document.getElementById("client").value.trim() || "[Client]",
+        document.getElementById("addr").value.trim() || "[Address or inbox]",
+        "",
+        "Re: unpaid invoice" + (document.getElementById("invoice").value.trim() ? " " + document.getElementById("invoice").value.trim() : "") + (issued ? ", issued " + issued : "") + (due ? ", due " + due : ""),
+        "",
+        "Please apply the payment below to the invoice I already sent. This note does not cite a statute, a payment term, a late fee, or a collections deadline I have not entered.",
+        "",
+        document.getElementById("note").value.trim() || "No note entered.",
+        "",
+        mathLine,
+        feeLine,
+        due ? "The due date on the invoice I sent is " + due + ". That date is copied from what I typed, not a deadline this page looked up." : "I have not entered a due date from the invoice, so this note does not state one.",
+        follow ? "Using the " + days + " days I confirmed" + (document.getElementById("daysource").value.trim() ? " (" + document.getElementById("daysource").value.trim() + ")" : "") + ", counted from " + sent + ", the follow-up date I get is " + fmt(follow) + ". That date is arithmetic on the days I typed, not a deadline this page looked up." : "I have not entered a confirmed reply period, so this note does not state one.",
+        "Invoice lines:",
+        log.length ? log.join("\n") : "None logged on this page.",
+        "",
+        "Please confirm the amount you will send and the date it will leave your account. Do not treat this note as a new invoice or a fee schedule.",
+        "",
+        document.getElementById("name").value.trim() || "[Name]"
+      ].join("\n").replace(/\n{3,}/g, "\n\n");
+      document.getElementById("letter").textContent = text;
+      save();
+    }
+    document.getElementById("example").addEventListener("click", () => {
+      document.getElementById("name").value = "Sample Studio";
+      document.getElementById("client").value = "Sample Client Desk";
+      document.getElementById("addr").value = "ap@example.com";
+      document.getElementById("invoice").value = "INV-1044";
+      document.getElementById("received").value = "200";
+      document.getElementById("issued").value = "2026-09-02";
+      document.getElementById("due").value = "2026-09-16";
+      document.getElementById("sent").value = "2026-10-04";
+      document.getElementById("days").value = "";
+      document.getElementById("daysource").value = "";
+      document.getElementById("late").value = "";
+      document.getElementById("latesource").value = "";
+      document.getElementById("note").value = "Sample only. Work listed below was delivered. The open amount is what was typed here. Not a real client and not a payment term.";
+      rows.innerHTML = "";
+      addRow("Design deposit", "800");
+      addRow("Revision round", "450");
+      save();
+      render();
+    });
+    form.addEventListener("input", render);
+    document.getElementById("copy").addEventListener("click", () => copyText(document.getElementById("letter").textContent, document.getElementById("copy")));
+    render();
+  </script>
+</body>
+</html>

@@ -149,6 +149,13 @@
       "status": "live",
       "path": "tools/utility-review.html",
       "search": ["utility bill too high letter", "why is my electric bill so high", "utility bill review request", "estimated meter read dispute"]
+    },
+    {
+      "slug": "invoice-chase",
+      "title": "Unpaid invoice packet",
+      "status": "live",
+      "path": "tools/invoice-chase.html",
+      "search": ["unpaid invoice letter", "invoice follow up", "client has not paid invoice", "freelance invoice balance"]
     }
   ]
 }
