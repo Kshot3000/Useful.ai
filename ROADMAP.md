@@ -17,6 +17,7 @@ Ship in order. Check the box in the same commit that adds the page. Register the
 - [x] Paycheck gap packet — hours, rate, and overtime multiplier the user enters; demand letter and stub notes. No minimum wage and no statute.
 - [x] Billing dispute packet — charged versus authorized amounts the user enters, dispute window in days the user confirms, evidence log and letter. No statute and no invented deadline.
 - [x] Landlord repair request packet — problem, access window, photo log, follow-up date from days the user enters. No repair statute and no invented response deadline.
+- [x] Move-in condition report — room notes, meter readings the user enters, photo log, and a dated report. No habitability statute.
 
 ## Later, only with a cited source
 - Head-of-household 2026 brackets, once every threshold is copied from Rev. Proc. 2025-32

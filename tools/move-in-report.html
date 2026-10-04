@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Move-in condition report — Useful.ai</title>
+  <meta name="description" content="Dated move-in condition report with room notes, meter readings you enter, a photo log, and a copyable packet. No habitability statute on this page.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect fill='%231a1916' width='32' height='32' rx='6'/%3E%3Cpath d='M8 22 V10 h4.2 c3.2 0 5 1.5 5 3.8 0 1.6-.9 2.8-2.3 3.3 1.7.4 2.8 1.7 2.8 3.5 0 2.5-2 3.9-5.4 3.9H8zm3-6.8h1.4c1.3 0 2-.6 2-1.6s-.7-1.5-2-1.5H11v3.1zm0 2.4v3.2h1.7c1.4 0 2.2-.6 2.2-1.6s-.8-1.6-2.2-1.6H11z' fill='%23f4f1ea'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,500&family=Outfit:wght@400;520;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/site.css">
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <a class="brand" href="../index.html">Useful<i>.ai</i></a>
+      <nav><a href="../index.html">All tools</a></nav>
+    </header>
+    <p class="crumb"><a href="../index.html">Tools</a> / Move-in report</p>
+    <section class="hero">
+      <p class="kicker">What the unit looked like on day one</p>
+      <h1>Move-in condition report</h1>
+      <p class="lede">Walk the unit and type what you see. This page turns room notes, meter readings you read off the dials, and a photo log into a dated report you can send with the lease. It does not state a habitability rule, a deposit statute, or a deadline.</p>
+    </section>
+    <div class="layout">
+      <form class="panel" id="form">
+        <ol class="steps">
+          <li><span>01</span><div>Walk every room before you unpack. A stain you do not log becomes your problem at move-out.</div></li>
+          <li><span>02</span><div>Read the meters yourself. This page does not look up a utility rate or a starting balance.</div></li>
+          <li><span>03</span><div>Send the packet the way the lease says, and keep the copy. Days until the lease starts are arithmetic on the dates you type.</div></li>
+        </ol>
+        <div class="row">
+          <div class="field"><label for="name">Your name</label><input id="name" placeholder="Name on the lease"></div>
+          <div class="field"><label for="landlord">Landlord or manager</label><input id="landlord" placeholder="Who receives the report"></div>
+        </div>
+        <div class="field"><label for="addr">Their address</label><input id="addr" placeholder="From the lease or the portal"></div>
+        <div class="row">
+          <div class="field"><label for="unit">Unit</label><input id="unit" placeholder="Address and unit"></div>
+          <div class="field"><label for="lease">Lease or account number</label><input id="lease" placeholder="Optional"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label for="start">Lease start</label><input id="start" type="date"></div>
+          <div class="field"><label for="inspected">Inspection date</label><input id="inspected" type="date"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label for="present">Who was present</label><input id="present" placeholder="You, a manager, nobody else"></div>
+          <div class="field"><label for="keys">Keys and fobs received</label><input id="keys" type="number" min="0" step="1" inputmode="numeric" placeholder="Count you were handed"></div>
+        </div>
+        <div class="field"><label for="access">How you will send this</label><input id="access" placeholder="Portal, email, or with the signed lease"></div>
+        <label>Rooms and fixtures</label>
+        <div id="rooms"></div>
+        <div class="actions" style="margin-bottom:12px">
+          <button class="secondary" id="addroom" type="button">Add a room</button>
+        </div>
+        <label>Meter readings you read</label>
+        <div class="row">
+          <div class="field"><label for="electric">Electric</label><input id="electric" placeholder="Reading and unit, or blank"></div>
+          <div class="field"><label for="gas">Gas</label><input id="gas" placeholder="Reading and unit, or blank"></div>
+        </div>
+        <div class="field"><label for="water">Water</label><input id="water" placeholder="Reading and unit, or blank if the building has none"></div>
+        <label>Photo log</label>
+        <div id="rows"></div>
+        <div class="actions">
+          <button class="secondary" id="addrow" type="button">Add a photo note</button>
+          <button class="secondary" id="example" type="button">Load example</button>
+        </div>
+      </form>
+      <aside class="result" aria-live="polite">
+        <p class="kicker">Packet</p>
+        <div class="statgrid" id="stats"></div>
+        <div id="flag"></div>
+        <pre class="letter" id="letter"></pre>
+        <div class="actions">
+          <button type="button" id="copy">Copy report</button>
+          <button type="button" class="secondary" onclick="window.print()">Print</button>
+        </div>
+        <p class="note">Saved in this browser only. Example text is not a real unit. This report is a record of what you typed, not a finding about whether the unit meets a code.</p>
+      </aside>
+    </div>
+    <footer class="site"><span>Not legal, tax, or medical advice. No habitability rule or deposit deadline is stated on this page.</span><span><a href="../index.html">All tools</a></span></footer>
+  </div>
+  <script src="../assets/site.js"></script>
+  <script>
+    const form = document.getElementById("form");
+    const save = persist("useful-move-in-report", form);
+    const rooms = document.getElementById("rooms");
+    const rows = document.getElementById("rows");
+    function addRoom(name, cond, note) {
+      const row = document.createElement("div");
+      row.className = "photo-row room-row";
+      row.innerHTML = '<input class="rname" placeholder="Kitchen, bath, bedroom" value="' + (name || "") + '"><select class="cond"><option value="ok">Looks sound</option><option value="wear">Ordinary wear</option><option value="damage">Damage to log</option><option value="missing">Missing or not working</option></select><button type="button" class="secondary">Remove</button>';
+      const noteEl = document.createElement("input");
+      noteEl.className = "rnote";
+      noteEl.placeholder = "What you saw";
+      noteEl.value = note || "";
+      noteEl.style.gridColumn = "1 / -1";
+      row.appendChild(noteEl);
+      if (cond) row.querySelector(".cond").value = cond;
+      row.querySelector("button").addEventListener("click", () => { row.remove(); render(); });
+      row.addEventListener("input", render);
+      rooms.appendChild(row);
+    }
+    function addRow(kind, note) {
+      const row = document.createElement("div");
+      row.className = "photo-row";
+      row.innerHTML = '<input class="kind" placeholder="Photo, video, meter shot" value="' + (kind || "") + '"><input class="note" placeholder="What it shows" value="' + (note || "") + '"><button type="button" class="secondary">Remove</button>';
+      row.querySelector("button").addEventListener("click", () => { row.remove(); render(); });
+      row.addEventListener("input", render);
+      rows.appendChild(row);
+    }
+    document.getElementById("addroom").addEventListener("click", () => addRoom());
+    document.getElementById("addrow").addEventListener("click", () => addRow());
+    addRoom();
+    addRow();
+    function num(id) {
+      const raw = document.getElementById(id).value;
+      if (raw === "" || raw == null) return null;
+      const n = Number(raw);
+      return Number.isFinite(n) ? n : null;
+    }
+    function fmt(d) { return d.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }); }
+    function condLabel(v) {
+      if (v === "wear") return "ordinary wear";
+      if (v === "damage") return "damage to log";
+      if (v === "missing") return "missing or not working";
+      return "looks sound";
+    }
+    function render() {
+      const start = document.getElementById("start").value;
+      const inspected = document.getElementById("inspected").value;
+      let gap = null;
+      if (start && inspected) {
+        const a = new Date(inspected + "T12:00:00");
+        const b = new Date(start + "T12:00:00");
+        gap = Math.round((b - a) / 86400000);
+      }
+      const roomLines = [...rooms.querySelectorAll(".room-row")].map(row => {
+        const name = row.querySelector(".rname").value.trim();
+        const cond = row.querySelector(".cond").value;
+        const note = row.querySelector(".rnote").value.trim();
+        if (!name && !note) return null;
+        return { name: name || "Room", cond, note, line: "- " + (name || "Room") + " — " + condLabel(cond) + (note ? ": " + note : "") };
+      }).filter(Boolean);
+      const flagged = roomLines.filter(r => r.cond === "damage" || r.cond === "missing").length;
+      const log = [...rows.querySelectorAll(".photo-row:not(.room-row)")].map(row => {
+        const kind = row.querySelector(".kind").value.trim();
+        const note = row.querySelector(".note").value.trim();
+        return kind || note ? "- " + (kind || "Photo") + ": " + (note || "on file") : "";
+      }).filter(Boolean);
+      const keys = num("keys");
+      const meters = ["electric", "gas", "water"].filter(id => document.getElementById(id).value.trim()).length;
+      document.getElementById("stats").innerHTML =
+        '<div class="stat"><span>Rooms logged</span><b>' + roomLines.length + '</b></div>' +
+        '<div class="stat"><span>Damage or missing</span><b>' + flagged + '</b></div>' +
+        '<div class="stat"><span>Meters filled</span><b>' + meters + ' of 3</b></div>' +
+        '<div class="stat"><span>Keys received</span><b>' + (keys == null ? "Not entered" : String(keys)) + '</b></div>' +
+        '<div class="stat emph"><span>Days from inspection to start</span><b>' + (gap == null ? "Need both dates" : (gap < 0 ? "Inspection after start" : String(gap))) + '</b></div>';
+      const flag = document.getElementById("flag");
+      if (!roomLines.length) flag.innerHTML = '<div class="callout">Add at least one room before you send this. A blank report does not protect a deposit.</div>';
+      else if (flagged && !log.length) flag.innerHTML = '<div class="callout warn">' + flagged + ' room' + (flagged === 1 ? '' : 's') + ' marked damaged or missing, and no photo note yet. A photo is what you will want at move-out.</div>';
+      else if (meters === 0) flag.innerHTML = '<div class="callout">No meter readings entered. Leave them blank only if you could not read a dial. This page does not invent a starting balance.</div>';
+      else flag.innerHTML = '<div class="callout ok">' + roomLines.length + ' room' + (roomLines.length === 1 ? '' : 's') + ' on the report, ' + flagged + ' flagged. Days to lease start are arithmetic on the dates you typed, not a filing deadline.</div>';
+      const today = new Date();
+      const text = [
+        fmt(inspected ? new Date(inspected + "T12:00:00") : today),
+        "",
+        document.getElementById("landlord").value.trim() || "[Landlord or manager]",
+        document.getElementById("addr").value.trim() || "[Address from the lease]",
+        "",
+        "Re: move-in condition report" + (document.getElementById("unit").value.trim() ? ", " + document.getElementById("unit").value.trim() : "") + (document.getElementById("lease").value.trim() ? ", lease " + document.getElementById("lease").value.trim() : ""),
+        "",
+        "This is a record of the unit as I found it on the inspection date. It does not cite a habitability rule, a deposit statute, or a deadline.",
+        "",
+        "Lease start: " + (start || "[not entered]") + ".",
+        "Inspection date: " + (inspected || "[not entered]") + ".",
+        gap == null ? "Days from inspection to lease start: not calculated. Both dates are required." : "Days from inspection to lease start: " + gap + ". That count is arithmetic on the dates I typed.",
+        "Present: " + (document.getElementById("present").value.trim() || "not entered") + ".",
+        "Keys and fobs received: " + (keys == null ? "not entered" : String(keys)) + ".",
+        "How I will send this: " + (document.getElementById("access").value.trim() || "not entered") + ".",
+        "",
+        "Rooms:",
+        roomLines.length ? roomLines.map(r => r.line).join("\n") : "None logged.",
+        "",
+        "Meters I read (blank means I did not enter one; this page did not supply a reading):",
+        "- Electric: " + (document.getElementById("electric").value.trim() || "not entered"),
+        "- Gas: " + (document.getElementById("gas").value.trim() || "not entered"),
+        "- Water: " + (document.getElementById("water").value.trim() || "not entered"),
+        "",
+        "Photo log:",
+        log.length ? log.join("\n") : "None logged on this page.",
+        "",
+        "Please attach this report to the lease file. I am not asking this page to decide what a later deduction may be.",
+        "",
+        document.getElementById("name").value.trim() || "[Name]"
+      ].join("\n").replace(/\n{3,}/g, "\n\n");
+      document.getElementById("letter").textContent = text;
+    }
+    document.getElementById("example").addEventListener("click", () => {
+      document.getElementById("name").value = "Sample Tenant";
+      document.getElementById("landlord").value = "Sample Property Desk";
+      document.getElementById("addr").value = "100 Sample Ave, Sample City";
+      document.getElementById("unit").value = "12B, 100 Sample Ave";
+      document.getElementById("lease").value = "L-204";
+      document.getElementById("start").value = "2026-10-05";
+      document.getElementById("inspected").value = "2026-10-03";
+      document.getElementById("present").value = "Sample Tenant only";
+      document.getElementById("keys").value = "2";
+      document.getElementById("access").value = "Email with the signed lease";
+      document.getElementById("electric").value = "014482 kWh, read off the dial";
+      document.getElementById("gas").value = "";
+      document.getElementById("water").value = "Building meter, not in the unit";
+      rooms.innerHTML = "";
+      addRoom("Kitchen", "damage", "Sample only. Chip on the counter by the sink. Not a real unit.");
+      addRoom("Bath", "ok", "Fan runs. Caulk intact.");
+      addRoom("Bedroom", "wear", "Scuff on the door, already there.");
+      rows.innerHTML = "";
+      addRow("Photo", "Counter chip, 2026-10-03");
+      addRow("Meter shot", "Electric dial 014482");
+      save();
+      render();
+    });
+    form.addEventListener("input", render);
+    document.getElementById("copy").addEventListener("click", () => copyText(document.getElementById("letter").textContent, document.getElementById("copy")));
+    render();
+  </script>
+</body>
+</html>

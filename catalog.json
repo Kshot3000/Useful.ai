@@ -107,6 +107,13 @@
       "status": "live",
       "path": "tools/repair-request.html",
       "search": ["landlord repair request letter", "maintenance request notice", "how to ask landlord to fix something", "repair follow-up letter"]
+    },
+    {
+      "slug": "move-in-report",
+      "title": "Move-in condition report",
+      "status": "live",
+      "path": "tools/move-in-report.html",
+      "search": ["move in condition report", "rental walkthrough checklist", "apartment inspection form", "move in photo log"]
     }
   ]
 }
