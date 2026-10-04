@@ -135,6 +135,13 @@
       "status": "live",
       "path": "tools/rent-ledger.html",
       "search": ["rent overcharge letter", "rent ledger charged vs lease", "landlord charged more than the lease", "rent payment log"]
+    },
+    {
+      "slug": "refund-request",
+      "title": "Refund request packet",
+      "status": "live",
+      "path": "tools/refund-request.html",
+      "search": ["refund request letter", "item never arrived refund", "order missing damaged return letter", "charged for something that did not arrive"]
     }
   ]
 }

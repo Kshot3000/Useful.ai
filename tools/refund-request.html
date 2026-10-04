@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Refund request packet — Useful.ai</title>
+  <meta name="description" content="Log what you were charged against what arrived. This page subtracts the gap and drafts a refund letter. It does not state a return window, a cooling-off period, or a card-network deadline.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect fill='%231a1916' width='32' height='32' rx='6'/%3E%3Cpath d='M8 22 V10 h4.2 c3.2 0 5 1.5 5 3.8 0 1.6-.9 2.8-2.3 3.3 1.7.4 2.8 1.7 2.8 3.5 0 2.5-2 3.9-5.4 3.9H8zm3-6.8h1.4c1.3 0 2-.6 2-1.6s-.7-1.5-2-1.5H11v3.1zm0 2.4v3.2h1.7c1.4 0 2.2-.6 2.2-1.6s-.8-1.6-2.2-1.6H11z' fill='%23f4f1ea'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,500&family=Outfit:wght@400;520;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/site.css">
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <a class="brand" href="../index.html">Useful<i>.ai</i></a>
+      <nav><a href="../index.html">All tools</a></nav>
+    </header>
+    <p class="crumb"><a href="../index.html">Tools</a> / Refund request</p>
+    <section class="hero">
+      <p class="kicker">The window is the one on the receipt, not on this page</p>
+      <h1>Refund request packet</h1>
+      <p class="lede">Type what the order charged and what actually arrived. This page subtracts the gap and writes a letter. It does not look up a return window, a cooling-off period, or a card dispute deadline.</p>
+    </section>
+    <div class="layout">
+      <form class="panel" id="form">
+        <ol class="steps">
+          <li><span>01</span><div>Copy the order number, the charge, and the date off the receipt or the statement. Leave a field blank if you have not confirmed it.</div></li>
+          <li><span>02</span><div>Log each item: what you ordered, what arrived, and the amount on that line. This page does not estimate a price.</div></li>
+          <li><span>03</span><div>If a return or reply period is printed on the receipt or the policy page you opened, type those days. Leave them blank if you have not confirmed one.</div></li>
+        </ol>
+        <div class="row">
+          <div class="field"><label for="name">Your name</label><input id="name" placeholder="Name on the order"></div>
+          <div class="field"><label for="merchant">Merchant</label><input id="merchant" placeholder="Store or seller"></div>
+        </div>
+        <div class="field"><label for="addr">Their address or support inbox</label><input id="addr" placeholder="From the receipt or the account page"></div>
+        <div class="row">
+          <div class="field"><label for="order">Order or confirmation number</label><input id="order" placeholder="From the receipt"></div>
+          <div class="field"><label for="ordered">Order date</label><input id="ordered" type="date"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label for="charged">Amount charged</label><input id="charged" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Blank until you confirm it"></div>
+          <div class="field"><label for="refunded">Already refunded</label><input id="refunded" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0 if none"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label for="sent">Date you will send this</label><input id="sent" type="date"></div>
+          <div class="field"><label for="days">Return or reply days, if you confirmed them</label><input id="days" type="number" min="1" step="1" inputmode="numeric" placeholder="Blank until you confirm"></div>
+        </div>
+        <div class="field"><label for="daysource">Where those days came from</label><input id="daysource" placeholder="Receipt line, policy page, or blank"></div>
+        <div class="field"><label for="note">What is missing or wrong</label><textarea id="note" placeholder="Not delivered, wrong item, damaged on arrival, charged twice. Do not invent a cooling-off rule."></textarea></div>
+        <label>Item log</label>
+        <div id="rows"></div>
+        <div class="actions">
+          <button class="secondary" id="addrow" type="button">Add an item</button>
+          <button class="secondary" id="example" type="button">Load example</button>
+        </div>
+      </form>
+      <aside class="result" aria-live="polite">
+        <p class="kicker">Packet</p>
+        <div class="statgrid" id="stats"></div>
+        <div id="flag"></div>
+        <pre class="letter" id="letter"></pre>
+        <div class="actions">
+          <button type="button" id="copy">Copy letter</button>
+          <button type="button" class="secondary" onclick="window.print()">Print</button>
+        </div>
+        <p class="note">Saved in this browser only. Example text is not a real order. The charge is whatever you type. This page does not state a return window or a card-network deadline.</p>
+      </aside>
+    </div>
+    <footer class="site"><span>Not legal, tax, or medical advice. No return window, cooling-off period, or dispute deadline is stated unless you type it.</span><span><a href="../index.html">All tools</a></span></footer>
+  </div>
+  <script src="../assets/site.js"></script>
+  <script>
+    const form = document.getElementById("form");
+    const save = persist("useful-refund-request", form);
+    const rows = document.getElementById("rows");
+    function addRow(label, orderedAmt, arrived) {
+      const row = document.createElement("div");
+      row.className = "photo-row";
+      row.innerHTML = '<input class="label" placeholder="Item" value="' + (label || "") + '"><input class="ordered" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Line amount" value="' + (orderedAmt || "") + '"><input class="arrived" placeholder="Arrived / missing" value="' + (arrived || "") + '"><button type="button" class="secondary">Remove</button>';
+      row.querySelector("button").addEventListener("click", () => { row.remove(); render(); });
+      row.addEventListener("input", render);
+      rows.appendChild(row);
+    }
+    document.getElementById("addrow").addEventListener("click", () => addRow());
+    addRow();
+    function num(id) {
+      const raw = document.getElementById(id).value;
+      if (raw === "" || raw == null) return null;
+      const n = Number(raw);
+      return Number.isFinite(n) ? n : null;
+    }
+    function fmt(d) { return d.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }); }
+    function render() {
+      const charged = num("charged");
+      const refunded = num("refunded");
+      const days = num("days");
+      const sent = document.getElementById("sent").value;
+      const ordered = document.getElementById("ordered").value;
+      let follow = null;
+      if (sent && days > 0) {
+        follow = new Date(sent + "T12:00:00");
+        follow.setDate(follow.getDate() + days);
+      }
+      let lineSum = 0;
+      let lineCount = 0;
+      let missing = 0;
+      const log = [];
+      rows.querySelectorAll(".photo-row").forEach(row => {
+        const label = row.querySelector(".label").value.trim();
+        const aRaw = row.querySelector(".ordered").value;
+        const status = row.querySelector(".arrived").value.trim();
+        const a = aRaw === "" ? null : Number(aRaw);
+        if (!label && a == null && !status) return;
+        lineCount += 1;
+        if (a != null && Number.isFinite(a)) lineSum += a;
+        const missingLine = /missing|not delivered|wrong|damaged|never/i.test(status);
+        if (missingLine) missing += 1;
+        const aText = a == null || !Number.isFinite(a) ? "amount not entered" : money(a);
+        log.push("- " + (label || "Item") + ": " + aText + ", " + (status || "status not entered"));
+      });
+      const open = charged == null ? null : charged - (refunded == null ? 0 : refunded);
+      document.getElementById("stats").innerHTML =
+        '<div class="stat"><span>Items</span><b>' + lineCount + '</b></div>' +
+        '<div class="stat"><span>Charged</span><b>' + (charged == null ? "Not entered" : money(charged)) + '</b></div>' +
+        '<div class="stat"><span>Line total</span><b>' + (lineCount ? money(lineSum) : "None logged") + '</b></div>' +
+        '<div class="stat emph"><span>Still charged</span><b>' + (open == null ? "Need the charge" : money(open)) + '</b></div>';
+      const flag = document.getElementById("flag");
+      if (!lineCount) flag.innerHTML = '<div class="callout">Add at least one item. This page does not estimate a price.</div>';
+      else if (charged == null) flag.innerHTML = '<div class="callout">No remaining-charge figure until you type the amount on the receipt. This page does not supply a refund rule.</div>';
+      else if (missing) flag.innerHTML = '<div class="callout warn">' + missing + ' item' + (missing === 1 ? '' : 's') + ' marked missing, wrong, damaged, or not delivered. Still charged after refunds you typed is ' + money(open) + '. That is subtraction, not a finding that a refund is owed.</div>';
+      else if (!follow) flag.innerHTML = '<div class="callout ok">Charged minus refunds you typed is ' + money(open) + '. No follow-up date until you enter a send date and a day count you confirmed.</div>';
+      else flag.innerHTML = '<div class="callout ok">Follow-up date is ' + fmt(follow) + ', counted from the send date plus the days you typed. That is arithmetic, not a deadline this page looked up.</div>';
+      const today = new Date();
+      const chargeLine = charged == null
+        ? "Amount charged: not entered. This note does not state one, and it does not use a posted refund policy figure."
+        : "Amount charged, as I typed it: " + money(charged) + ". Already refunded, as I typed it: " + money(refunded == null ? 0 : refunded) + ". Still charged on those figures: " + money(open) + ". Item lines I logged add to " + money(lineSum) + ". That is subtraction, not a finding that a refund is owed.";
+      const text = [
+        fmt(sent ? new Date(sent + "T12:00:00") : today),
+        "",
+        document.getElementById("merchant").value.trim() || "[Merchant]",
+        document.getElementById("addr").value.trim() || "[Address or inbox]",
+        "",
+        "Re: refund request" + (document.getElementById("order").value.trim() ? ", order " + document.getElementById("order").value.trim() : "") + (ordered ? ", ordered " + ordered : ""),
+        "",
+        "Please reconcile the charge below with what arrived. This note does not cite a statute, a cooling-off period, a return window, or a card-network deadline I have not entered.",
+        "",
+        document.getElementById("note").value.trim() || "No note entered.",
+        "",
+        chargeLine,
+        "",
+        follow ? "Using the " + days + " days I confirmed" + (document.getElementById("daysource").value.trim() ? " (" + document.getElementById("daysource").value.trim() + ")" : "") + ", counted from " + sent + ", the follow-up date I get is " + fmt(follow) + ". That date is arithmetic on the days I typed, not a deadline this page looked up." : "I have not entered a confirmed return or reply period, so this note does not state one.",
+        "Item log:",
+        log.length ? log.join("\n") : "None logged on this page.",
+        "",
+        "Please confirm which lines will be refunded, which items you still intend to send, and the date any credit will appear.",
+        "",
+        document.getElementById("name").value.trim() || "[Name]"
+      ].join("\n").replace(/\n{3,}/g, "\n\n");
+      document.getElementById("letter").textContent = text;
+    }
+    document.getElementById("example").addEventListener("click", () => {
+      document.getElementById("name").value = "Sample Buyer";
+      document.getElementById("merchant").value = "Sample Store Desk";
+      document.getElementById("addr").value = "returns@example.com";
+      document.getElementById("order").value = "ORD-4401";
+      document.getElementById("ordered").value = "2026-09-18";
+      document.getElementById("charged").value = "86.40";
+      document.getElementById("refunded").value = "0";
+      document.getElementById("sent").value = "2026-10-04";
+      document.getElementById("days").value = "";
+      document.getElementById("daysource").value = "";
+      document.getElementById("note").value = "Sample only. One item never arrived and one arrived damaged. Not a real order.";
+      rows.innerHTML = "";
+      addRow("Lamp", "42.00", "Not delivered");
+      addRow("Shade", "28.00", "Damaged");
+      addRow("Shipping", "16.40", "Charged");
+      save();
+      render();
+    });
+    form.addEventListener("input", render);
+    document.getElementById("copy").addEventListener("click", () => copyText(document.getElementById("letter").textContent, document.getElementById("copy")));
+    render();
+  </script>
+</body>
+</html>
