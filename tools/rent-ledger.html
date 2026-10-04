@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Rent ledger and overcharge packet — Useful.ai</title>
+  <meta name="description" content="Log rent charged against the lease rent you type. This page subtracts what you paid and drafts a letter. It does not state a rent-control cap, a late-fee limit, or a response deadline.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect fill='%231a1916' width='32' height='32' rx='6'/%3E%3Cpath d='M8 22 V10 h4.2 c3.2 0 5 1.5 5 3.8 0 1.6-.9 2.8-2.3 3.3 1.7.4 2.8 1.7 2.8 3.5 0 2.5-2 3.9-5.4 3.9H8zm3-6.8h1.4c1.3 0 2-.6 2-1.6s-.7-1.5-2-1.5H11v3.1zm0 2.4v3.2h1.7c1.4 0 2.2-.6 2.2-1.6s-.8-1.6-2.2-1.6H11z' fill='%23f4f1ea'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,500&family=Outfit:wght@400;520;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/site.css">
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <a class="brand" href="../index.html">Useful<i>.ai</i></a>
+      <nav><a href="../index.html">All tools</a></nav>
+    </header>
+    <p class="crumb"><a href="../index.html">Tools</a> / Rent ledger</p>
+    <section class="hero">
+      <p class="kicker">Lease rent from the page you signed, not from this one</p>
+      <h1>Rent ledger and overcharge packet</h1>
+      <p class="lede">Type the monthly rent on the lease and what each statement actually charged. This page subtracts what you paid and writes a letter. It does not look up a rent-control cap, a late-fee limit, or a reply deadline.</p>
+    </section>
+    <div class="layout">
+      <form class="panel" id="form">
+        <ol class="steps">
+          <li><span>01</span><div>Copy the rent off the lease. Add only other monthly amounts the lease also names. Leave a field blank if you have not confirmed it.</div></li>
+          <li><span>02</span><div>Log each month from the statement: what was charged, and what you paid. This page does not estimate either figure.</div></li>
+          <li><span>03</span><div>If a reply period is in the lease or a notice, type those days. Leave them blank if you have not confirmed one.</div></li>
+        </ol>
+        <div class="row">
+          <div class="field"><label for="name">Your name</label><input id="name" placeholder="Name on the lease"></div>
+          <div class="field"><label for="landlord">Landlord or manager</label><input id="landlord" placeholder="Who receives the rent"></div>
+        </div>
+        <div class="field"><label for="addr">Their address</label><input id="addr" placeholder="From the lease or the portal"></div>
+        <div class="row">
+          <div class="field"><label for="unit">Unit</label><input id="unit" placeholder="Address and unit"></div>
+          <div class="field"><label for="leaseid">Lease or account number</label><input id="leaseid" placeholder="Optional"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label for="rent">Monthly rent on the lease</label><input id="rent" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Blank until you confirm it"></div>
+          <div class="field"><label for="other">Other monthly amounts the lease names</label><input id="other" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Parking, pet, or 0"></div>
+        </div>
+        <div class="field"><label for="othersource">Where those other amounts came from</label><input id="othersource" placeholder="Lease section, or blank"></div>
+        <div class="row">
+          <div class="field"><label for="credits">Credits already applied</label><input id="credits" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0 if none"></div>
+          <div class="field"><label for="sent">Date you will send this</label><input id="sent" type="date"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label for="days">Follow-up days, if you confirmed them</label><input id="days" type="number" min="1" step="1" inputmode="numeric" placeholder="Blank until you confirm"></div>
+          <div class="field"><label for="daysource">Where those days came from</label><input id="daysource" placeholder="Lease section, or blank"></div>
+        </div>
+        <div class="field"><label for="note">What looks wrong</label><textarea id="note" placeholder="A raised charge, a fee the lease does not name, a payment that did not post. Do not invent a rent-control rule."></textarea></div>
+        <label>Month log</label>
+        <div id="rows"></div>
+        <div class="actions">
+          <button class="secondary" id="addrow" type="button">Add a month</button>
+          <button class="secondary" id="example" type="button">Load example</button>
+        </div>
+      </form>
+      <aside class="result" aria-live="polite">
+        <p class="kicker">Packet</p>
+        <div class="statgrid" id="stats"></div>
+        <div id="flag"></div>
+        <pre class="letter" id="letter"></pre>
+        <div class="actions">
+          <button type="button" id="copy">Copy letter</button>
+          <button type="button" class="secondary" onclick="window.print()">Print</button>
+        </div>
+        <p class="note">Saved in this browser only. Example text is not a real ledger. The rent is whatever you type. This page does not state a rent-control cap or a late-fee limit.</p>
+      </aside>
+    </div>
+    <footer class="site"><span>Not legal, tax, or medical advice. No rent cap, late-fee limit, or reply deadline is stated unless you type it.</span><span><a href="../index.html">All tools</a></span></footer>
+  </div>
+  <script src="../assets/site.js"></script>
+  <script>
+    const form = document.getElementById("form");
+    const save = persist("useful-rent-ledger", form);
+    const rows = document.getElementById("rows");
+    function addRow(label, charged, paid) {
+      const row = document.createElement("div");
+      row.className = "photo-row";
+      row.innerHTML = '<input class="label" placeholder="Month, or fee name" value="' + (label || "") + '"><input class="charged" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Charged" value="' + (charged || "") + '"><input class="paid" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Paid" value="' + (paid || "") + '"><button type="button" class="secondary">Remove</button>';
+      row.querySelector("button").addEventListener("click", () => { row.remove(); render(); });
+      row.addEventListener("input", render);
+      rows.appendChild(row);
+    }
+    document.getElementById("addrow").addEventListener("click", () => addRow());
+    addRow();
+    function num(id) {
+      const raw = document.getElementById(id).value;
+      if (raw === "" || raw == null) return null;
+      const n = Number(raw);
+      return Number.isFinite(n) ? n : null;
+    }
+    function fmt(d) { return d.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }); }
+    function render() {
+      const rent = num("rent");
+      const other = num("other");
+      const credits = num("credits");
+      const days = num("days");
+      const sent = document.getElementById("sent").value;
+      const authorized = rent == null ? null : rent + (other == null ? 0 : other);
+      let follow = null;
+      if (sent && days > 0) {
+        follow = new Date(sent + "T12:00:00");
+        follow.setDate(follow.getDate() + days);
+      }
+      let charged = 0;
+      let paid = 0;
+      let monthCount = 0;
+      let rentLines = 0;
+      let overLines = 0;
+      const log = [];
+      rows.querySelectorAll(".photo-row").forEach(row => {
+        const label = row.querySelector(".label").value.trim();
+        const cRaw = row.querySelector(".charged").value;
+        const pRaw = row.querySelector(".paid").value;
+        const c = cRaw === "" ? null : Number(cRaw);
+        const p = pRaw === "" ? null : Number(pRaw);
+        if (!label && c == null && p == null) return;
+        monthCount += 1;
+        if (c != null && Number.isFinite(c)) charged += c;
+        if (p != null && Number.isFinite(p)) paid += p;
+        const isRentLine = /rent/i.test(label) && !/fee|late|pet|park/i.test(label);
+        if (isRentLine && authorized != null && c != null && Number.isFinite(c)) {
+          rentLines += 1;
+          if (c - authorized > 0.009) overLines += 1;
+        }
+        const cText = c == null || !Number.isFinite(c) ? "charged not entered" : money(c);
+        const pText = p == null || !Number.isFinite(p) ? "paid not entered" : money(p);
+        log.push("- " + (label || "Line") + ": charged " + cText + ", paid " + pText);
+      });
+      const expected = authorized == null || !rentLines ? null : authorized * rentLines;
+      const over = expected == null ? null : charged - expected - (credits == null ? 0 : credits);
+      const open = charged - paid - (credits == null ? 0 : credits);
+      document.getElementById("stats").innerHTML =
+        '<div class="stat"><span>Lines</span><b>' + monthCount + '</b></div>' +
+        '<div class="stat"><span>Charged</span><b>' + (monthCount ? money(charged) : "None logged") + '</b></div>' +
+        '<div class="stat"><span>Lease rent</span><b>' + (rent == null ? "Not entered" : money(rent)) + '</b></div>' +
+        '<div class="stat emph"><span>Above lease on rent lines</span><b>' + (over == null ? "Need rent" : money(over)) + '</b></div>';
+      const flag = document.getElementById("flag");
+      if (!monthCount) flag.innerHTML = '<div class="callout">Add at least one month. This page does not estimate a charge.</div>';
+      else if (rent == null) flag.innerHTML = '<div class="callout">No overcharge figure until you type the monthly rent on the lease. This page does not supply a rent-control cap.</div>';
+      else if (!rentLines) flag.innerHTML = '<div class="callout">Charged minus paid, after credits you typed, is ' + money(open) + '. Name a line with the word rent if you want it compared with the lease amount.</div>';
+      else if (over > 0.009) flag.innerHTML = '<div class="callout warn">' + overLines + ' rent line' + (overLines === 1 ? '' : 's') + ' sit above the lease rent plus other amounts you typed. That gap is subtraction, not a legal cap.</div>';
+      else if (!follow) flag.innerHTML = '<div class="callout ok">Rent lines match the lease amount you typed, within a cent. No follow-up date until you enter a send date and a day count you confirmed.</div>';
+      else flag.innerHTML = '<div class="callout ok">Follow-up date is ' + fmt(follow) + ', counted from the send date plus the days you typed. That is arithmetic, not a deadline this page looked up.</div>';
+      const today = new Date();
+      const rentLine = rent == null
+        ? "Monthly rent on the lease: not entered. This note does not state one, and it does not use a rent-control figure."
+        : "Monthly rent on the lease, as I typed it: " + money(rent) + ". Other monthly amounts the lease names: " + money(other == null ? 0 : other) + (document.getElementById("othersource").value.trim() ? ", from " + document.getElementById("othersource").value.trim() : "") + ". Authorized monthly total on those figures: " + money(authorized) + ".";
+      const overLine = over == null
+        ? "Comparison to the lease: not calculated. A line is compared only if its label includes the word rent and is not marked as a fee."
+        : "Rent lines compared: " + rentLines + ". Lease amount times those lines: " + money(expected) + ". All charges logged: " + money(charged) + ". Credits I typed: " + money(credits == null ? 0 : credits) + ". Charges above that lease math, after credits: " + money(over) + ". Paid on the log: " + money(paid) + ". Charged minus paid, after those credits: " + money(open) + ". That is subtraction, not a finding that a fee is unlawful.";
+      const text = [
+        fmt(sent ? new Date(sent + "T12:00:00") : today),
+        "",
+        document.getElementById("landlord").value.trim() || "[Landlord or manager]",
+        document.getElementById("addr").value.trim() || "[Address]",
+        "",
+        "Re: rent ledger" + (document.getElementById("unit").value.trim() ? ", " + document.getElementById("unit").value.trim() : "") + (document.getElementById("leaseid").value.trim() ? ", " + document.getElementById("leaseid").value.trim() : ""),
+        "",
+        "Please reconcile the charges below with the monthly rent on the lease. This note does not cite a statute, a rent-control cap, a late-fee limit, or a reply deadline I have not entered.",
+        "",
+        document.getElementById("note").value.trim() || "No note entered.",
+        "",
+        rentLine,
+        overLine,
+        "",
+        follow ? "Using the " + days + " days I confirmed" + (document.getElementById("daysource").value.trim() ? " (" + document.getElementById("daysource").value.trim() + ")" : "") + ", counted from " + sent + ", the follow-up date I get is " + fmt(follow) + ". That date is arithmetic on the days I typed, not a deadline this page looked up." : "I have not entered a confirmed reply period, so this note does not state one.",
+        "Month log:",
+        log.length ? log.join("\n") : "None logged on this page.",
+        "",
+        "Please confirm which lines match the lease, which payments have posted, and the date any credit will appear.",
+        "",
+        document.getElementById("name").value.trim() || "[Name]"
+      ].join("\n").replace(/\n{3,}/g, "\n\n");
+      document.getElementById("letter").textContent = text;
+    }
+    document.getElementById("example").addEventListener("click", () => {
+      document.getElementById("name").value = "Sample Tenant";
+      document.getElementById("landlord").value = "Sample Property Desk";
+      document.getElementById("addr").value = "12 Sample St, Sample City";
+      document.getElementById("unit").value = "12 Sample St, unit 4";
+      document.getElementById("leaseid").value = "LEASE-44";
+      document.getElementById("rent").value = "1500";
+      document.getElementById("other").value = "50";
+      document.getElementById("othersource").value = "Sample lease parking line, not a cap";
+      document.getElementById("credits").value = "0";
+      document.getElementById("sent").value = "2026-10-03";
+      document.getElementById("days").value = "";
+      document.getElementById("daysource").value = "";
+      document.getElementById("note").value = "Sample only. October rent is above the lease amount I typed. Not a real ledger.";
+      rows.innerHTML = "";
+      addRow("September rent", "1550", "1550");
+      addRow("October rent", "1700", "1550");
+      addRow("October late fee", "75", "0");
+      save();
+      render();
+    });
+    form.addEventListener("input", render);
+    document.getElementById("copy").addEventListener("click", () => copyText(document.getElementById("letter").textContent, document.getElementById("copy")));
+    render();
+  </script>
+</body>
+</html>
